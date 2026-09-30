@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>multi_arm_causal_forest – PyCausalML</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" rel="next">
+<link href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f1aadacce99040138bbb613f9330654f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c3ddef8e9936373b1ee063945a43a984.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<style>
+.navbar-logo img { max-height: 42px; width: auto; }
+#quarto-sidebar .sidebar-logo img { max-width: 168px; height: auto; }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="index.qmd" class="navbar-brand navbar-brand-logo">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo light-content">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="index.qmd">
+    <span class="navbar-title">PyCausalML</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/02_08_05_00_casual_ml_introduction.html"> 
+<span class="menu-text">Tutorial</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/00-scientific-terminology-glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://sites.google.com/view/r-data-sci-env/home"> <i class="bi bi-house" role="img" aria-label="Upatta Analytics">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/zia207/PyCausalML"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/zia-ahmed207"> <i class="bi bi-linkedin" role="img" aria-label="LinkedIn">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:zia207@gmail.com"> <i class="bi bi-envelope" role="img" aria-label="Email">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html"><strong>Tree-Based Models</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.html">Multi-Arm Causal Forest</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html"><strong>Tree-Based Models</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.html">Multi-Arm Causal Forest</a></li></ol></nav></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="index.qmd" class="sidebar-logo-link">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Package Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/02_08_05_00_casual_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Tree-Based Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Tree-Based Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_02_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_03_causal_survival_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Survival Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Multi-Arm Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal XGBoost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted IV Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted Multi-Arm Causal Model</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Meta-Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_00_meta_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Meta-Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_01_meta_learners_binary_treatments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binary Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_02_meta_learners_multiple_discrete_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Discrete Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_03_meta_learners_continuous_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_04_tmle_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Targeted Maximum Likelihood Estimation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_05_meta_learners_domain_adaptation_learner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Domain Adaptation Learner</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_06_meta_learners_doubly_robust_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Uplift Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Uplift Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_01_uplift_trees_classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Classification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Random Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift XGBoost</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Double Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_00_double_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_01_double_ml_from_basics_to_application.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bias and Orthogonalization</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_02_double_ml_single_multiple_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single and Multiple Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_03_double_ml_did.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_04_double_ml_iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_05_double_ml_dynamic_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dynamic Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_06_double_ml_weighted_double_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weighted Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_07_double_ml_cluster_robust.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cluster-Robust Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_08_double_ml_ensemble_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ensemble Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Deep Causal Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_00_DeepCausalML_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Deep Causal Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Treatment Effect Estimators</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_00_DeepCausalML_treatment_effect_estimators_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Treatment Effect Estimators</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_01_DeepCausalML_TARNET.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">TARNet: Treatment-Agnostic Representation Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_02_DeepCausalML_CFRNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CFRNet: Counterfactual Regression Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_03_DeepCausalML_DragonNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DragonNet: Propensity-Adjusted Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_04_DeepCausalML_GANITE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GANITE: Generative Adversarial Treatment Effects</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_05_DeepCausalML_NeuralDML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NeuralDML: Neural Double Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Generative Latent-Variable Causal Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_00_DeepCausalML_GLVCM_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to GLVCMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_01_DeepCausalML_CausalVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalVAE: Causal Variational Autoencoder</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_02_DeepCausalML_iVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">iVAE: Identifiable Variational Autoencoders</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_03_DeepCausalML_CausalDiscrepancyVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalDiscrepancyVAE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_04_DeepCausalML_CausalGAN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalGAN: Causal Generative Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_05_DeepCausalML_DSCM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Deep Structural Causal Models (DSCMs)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_06_DeepCausalML_CausalEGM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalEGM: Causal Encoding Generative Modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Structural Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_00_DeepCausalML_structural_learning_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Structural Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_01_DeepCausalML_NOTEARS.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NOTEARS: Continuous Optimization Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_02_DeepCausalML_DagGNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAG-GNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_03_DeepCausalML_GranDag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GraN-DAG</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_04_DeepCausalML_DAGMA_NoCurl.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAGMA and DAG-NoCurl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_05_DeepCausalML_CASTLE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CASTLE: Causal Structure Learning Regularization</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Temporal Deep Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_00_DeepCausalML_timeseries_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Temporal Deep Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_01_DeepCausalML_timeseries_neural_granger_causality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Neural Granger Causality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_02_DeepCausalML_timeseries_structural_causal_model_SMC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structural Causal Models with Deep Components</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_03_DeepCausalML_attention_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Attention and Transformer Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_04_DeepCausalML_timeseries_RNN_LSTM_causalML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">RNN and LSTM Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_05_DeepCausalML_timeseries_graphNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graph Neural Network Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_06_DeepCausalML_timeseries_counterfactual_potential.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counterfactual and Potential Outcomes Models</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Bayesian Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_00_bayesian_causal_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Bayesian Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_01_bayesian_causal_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Causal Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_02_graphs_and_bayesian_networks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graphs and Bayesian Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_03_bayesian_structural_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Structural Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_04_bayesian_quasi_experiments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experiments</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Policy Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_00_policy_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Policy Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_01_doubleml_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_02_econml_dr_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_03_econml_policy_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Forest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Quasi-Experiments</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_00_quasi_experiments_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Quasi-Experiments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_01_difference_in_differences.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_02_synthetic_control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Synthetic Control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_03_regression_discontinuity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression Discontinuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_04_instrumental_variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_05_bayesian_causal_inference_quasi_experimental.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experimental Inference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Terminology</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/00-scientific-terminology-glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A–Z glossary of causal inference and machine learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On This Page</h2>
+   
+  <ul>
+  <li><a href="#multi-armmulti-outcome-causal-forest" id="toc-multi-armmulti-outcome-causal-forest" class="nav-link active" data-scroll-target="#multi-armmulti-outcome-causal-forest">1.5 Multi-arm/multi-outcome Causal Forest</a>
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a>
+  <ul class="collapse">
+  <li><a href="#when-to-use-it" id="toc-when-to-use-it" class="nav-link" data-scroll-target="#when-to-use-it">When to Use It</a></li>
+  <li><a href="#key-concepts" id="toc-key-concepts" class="nav-link" data-scroll-target="#key-concepts">Key Concepts</a></li>
+  <li><a href="#how-it-works" id="toc-how-it-works" class="nav-link" data-scroll-target="#how-it-works">How It Works</a></li>
+  <li><a href="#key-differences-from-standard-causal-forest" id="toc-key-differences-from-standard-causal-forest" class="nav-link" data-scroll-target="#key-differences-from-standard-causal-forest">Key Differences from Standard Causal Forest</a></li>
+  <li><a href="#advantages" id="toc-advantages" class="nav-link" data-scroll-target="#advantages">Advantages</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  </ul></li>
+  <li><a href="#multi-armmulti-outcome-causal-forest-in-python" id="toc-multi-armmulti-outcome-causal-forest-in-python" class="nav-link" data-scroll-target="#multi-armmulti-outcome-causal-forest-in-python">Multi-arm/multi-outcome Causal Forest in Python</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a>
+  <ul class="collapse">
+  <li><a href="#prepare-the-patient-dataset" id="toc-prepare-the-patient-dataset" class="nav-link" data-scroll-target="#prepare-the-patient-dataset">Prepare the patient dataset</a></li>
+  <li><a href="#train-the-multi-armmulti-outcome-causal-forest" id="toc-train-the-multi-armmulti-outcome-causal-forest" class="nav-link" data-scroll-target="#train-the-multi-armmulti-outcome-causal-forest">Train the Multi-arm/Multi-outcome Causal Forest</a></li>
+  <li><a href="#predict-on-the-test-data-set" id="toc-predict-on-the-test-data-set" class="nav-link" data-scroll-target="#predict-on-the-test-data-set">Predict on the test data set</a></li>
+  <li><a href="#calculate-doubly-robust-average-treatment-effects-aipw" id="toc-calculate-doubly-robust-average-treatment-effects-aipw" class="nav-link" data-scroll-target="#calculate-doubly-robust-average-treatment-effects-aipw">Calculate Doubly Robust Average Treatment Effects (AIPW)</a></li>
+  <li><a href="#plot-variable-importance" id="toc-plot-variable-importance" class="nav-link" data-scroll-target="#plot-variable-importance">Plot Variable Importance</a>
+  <ul class="collapse">
+  <li><a href="#log-length-of-stay" id="toc-log-length-of-stay" class="nav-link" data-scroll-target="#log-length-of-stay">Log length of stay</a></li>
+  <li><a href="#clinical-response" id="toc-clinical-response" class="nav-link" data-scroll-target="#clinical-response">Clinical response</a></li>
+  </ul></li>
+  <li><a href="#shap-values-for-each-outcome" id="toc-shap-values-for-each-outcome" class="nav-link" data-scroll-target="#shap-values-for-each-outcome">SHAP values for each outcome</a>
+  <ul class="collapse">
+  <li><a href="#predicted-contrasts" id="toc-predicted-contrasts" class="nav-link" data-scroll-target="#predicted-contrasts">Predicted contrasts</a></li>
+  <li><a href="#prediction-wrappers-one-per-contrast" id="toc-prediction-wrappers-one-per-contrast" class="nav-link" data-scroll-target="#prediction-wrappers-one-per-contrast">Prediction wrappers (one per contrast)</a></li>
+  <li><a href="#compute-shap-values-for-each-contrast" id="toc-compute-shap-values-for-each-contrast" class="nav-link" data-scroll-target="#compute-shap-values-for-each-contrast">Compute SHAP values for each contrast</a></li>
+  </ul></li>
+  <li><a href="#exact-kernel-shap-values-preview" id="toc-exact-kernel-shap-values-preview" class="nav-link" data-scroll-target="#exact-kernel-shap-values-preview">Exact Kernel SHAP values (preview)</a></li>
+  <li><a href="#shap-summaries" id="toc-shap-summaries" class="nav-link" data-scroll-target="#shap-summaries">SHAP summaries</a></li>
+  <li><a href="#importance-plots" id="toc-importance-plots" class="nav-link" data-scroll-target="#importance-plots">Importance Plots</a></li>
+  <li><a href="#dependence-plots-for-each-covariate" id="toc-dependence-plots-for-each-covariate" class="nav-link" data-scroll-target="#dependence-plots-for-each-covariate">Dependence plots for each covariate</a></li>
+  </ul></li>
+  <li><a href="#summary-and-conclusion" id="toc-summary-and-conclusion" class="nav-link" data-scroll-target="#summary-and-conclusion">Summary and Conclusion</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Image/05_01_tree_based_models.png" class="img-fluid figure-img"></p>
+<figcaption>Python Banner</figcaption>
+</figure>
+</div>
+<section id="multi-armmulti-outcome-causal-forest" class="level1">
+<h1>1.5 Multi-arm/multi-outcome Causal Forest</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>A <strong>Multi-Arm/Multi-Outcome Causal Forest</strong> extends the standard Causal Forest to handle two common real-world complications simultaneously: there may be more than two treatment options (multiple arms), and the researcher may care about more than one outcome at the same time (multiple outcomes). It remains fully within the Generalized Random Forest (GRF) framework, preserving the core properties of honest estimation and non-parametric flexibility.</p>
+<p>The key promise of this extension is <strong>information sharing</strong>: by modeling treatment arms and outcomes jointly, the forest can borrow strength across related estimates rather than fitting each comparison in isolation — improving precision, especially when sample sizes per arm are limited.</p>
+<section id="when-to-use-it" class="level3">
+<h3 class="anchored" data-anchor-id="when-to-use-it">When to Use It</h3>
+<p>A multi-arm/multi-outcome causal forest is the right tool when the research question is of the form: <em>“How does each treatment affect each outcome, and does this vary across subgroups?”</em></p>
+<p>Concrete settings include:</p>
+<ul>
+<li><strong>Clinical trials</strong> comparing several drugs or dosing regimens on multiple patient health metrics simultaneously (e.g., blood pressure, cholesterol, adverse events).</li>
+<li><strong>Policy evaluation</strong> where several interventions (e.g., cash transfers, job training, mentoring) are tested and success is measured across multiple dimensions (e.g., employment rate, income, school attendance).</li>
+<li><strong>Marketing experiments</strong> with multiple campaign strategies evaluated on several customer metrics (e.g., click-through rate, conversion, retention).</li>
+</ul>
+<p>In all these cases, fitting separate single-arm, single-outcome models would ignore correlations between outcomes and inflate estimation variance — particularly when some arms have few observations.</p>
+</section>
+<section id="key-concepts" class="level3">
+<h3 class="anchored" data-anchor-id="key-concepts">Key Concepts</h3>
+<p><strong>Multi-arm treatment effects.</strong> With <span class="math inline">\(J\)</span> treatment arms (including control <span class="math inline">\(W = 0\)</span>), the forest estimates <span class="math inline">\(J\)</span> separate conditional effects for each individual:</p>
+<p><span class="math display">\[\tau_j(X) = E[Y \mid W = j,\, X = x] - E[Y \mid W = 0,\, X = x], \quad j = 1, \ldots, J\]</span></p>
+<p><strong>Multi-outcome treatment effects.</strong> With <span class="math inline">\(K\)</span> outcomes <span class="math inline">\(Y_1, \ldots, Y_K\)</span>, the forest estimates an effect for each combination of arm <span class="math inline">\(j\)</span> and outcome <span class="math inline">\(k\)</span>:</p>
+<p><span class="math display">\[\tau_{j,k}(X) = E[Y_k \mid W = j,\, X = x] - E[Y_k \mid W = 0,\, X = x]\]</span></p>
+<p>The full output for an individual is therefore a <span class="math inline">\(J \times K\)</span> matrix of treatment effect estimates.</p>
+<p><strong>Joint splitting criterion.</strong> Unlike fitting <span class="math inline">\(J \times K\)</span> independent forests, a single tree’s splits are chosen to maximize heterogeneity across <em>all</em> arms and outcomes simultaneously, using a joint loss function that respects the covariance structure among outcomes. This is what enables information sharing.</p>
+<p><strong>Nuisance estimation.</strong> Propensity scores <span class="math inline">\(\hat{e}_j(X) = P(W = j \mid X)\)</span> and outcome regressions <span class="math inline">\(\hat{\mu}_k(X)\)</span> are estimated using separate regression forests. Residualizing with these nuisances — forming <span class="math inline">\(\tilde{Y}_k = Y_k - \hat{\mu}_k(X)\)</span> and <span class="math inline">\(\tilde{W}_j = \mathbf{1}(W=j) - \hat{e}_j(X)\)</span> — removes confounding before the causal forest estimates effects.</p>
+<p><strong>Honest estimation.</strong> As in all GRF methods, each tree uses a separate subsample to find splits (<span class="math inline">\(S_1\)</span>) and to estimate effects within leaves (<span class="math inline">\(S_2\)</span>), preventing overfitting and ensuring asymptotically valid confidence intervals.</p>
+</section>
+<section id="how-it-works" class="level3">
+<h3 class="anchored" data-anchor-id="how-it-works">How It Works</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Image/Multi-arm-multi-outcome-Causal-Forest.png" class="img-fluid figure-img"></p>
+<figcaption>Multi-arm multi-outcome causal forest</figcaption>
+</figure>
+</div>
+<p>A few things worth emphasizing from the pipeline:</p>
+<p><strong>The</strong> <span class="math inline">\(J \times K\)</span> matrix in step 5 is the defining output. Each row is a treatment arm; each column is an outcome. For an individual with covariates <span class="math inline">\(X = x\)</span>, every cell gives a separate CATE estimate with its own confidence interval. This is what distinguishes the multi-arm/multi-outcome forest from running <span class="math inline">\(J \times K\)</span> separate causal forests — the joint splitting criterion in step 3 means the covariate partitions reflect <em>shared</em> structure across all cells, not independent ones.</p>
+<p><strong>Step 2 (nuisance estimation) is more complex here</strong> than in the binary treatment case. With <span class="math inline">\(J\)</span> arms, the forest must estimate <span class="math inline">\(J\)</span> propensity scores <span class="math inline">\(\hat{e}_j(X)\)</span> — one per arm — and <span class="math inline">\(K\)</span> outcome regressions <span class="math inline">\(\hat{\mu}_k(X)\)</span>. These are estimated via separate regression forests and used to form the residuals <span class="math inline">\(\tilde{W}_j\)</span> and <span class="math inline">\(\tilde{Y}_k\)</span> that the causal forest then splits on.</p>
+<p><strong>Information sharing is the key efficiency gain.</strong> When outcomes <span class="math inline">\(Y_1\)</span> and <span class="math inline">\(Y_2\)</span> are correlated (e.g., systolic and diastolic blood pressure), the joint covariance structure in the splitting criterion means that a split informative for one outcome also informs the other. This can substantially reduce variance compared to independent forests, particularly in small-sample regimes.</p>
+</section>
+<section id="key-differences-from-standard-causal-forest" class="level3">
+<h3 class="anchored" data-anchor-id="key-differences-from-standard-causal-forest">Key Differences from Standard Causal Forest</h3>
+<ul>
+<li><code>Standard Causal Forest</code>: Handles one treatment (binary or continuous) and one outcome, estimating a single treatment effect per individual.</li>
+<li><code>Multi-Arm/Multi-Outcome Causal Forest</code>:
+<ul>
+<li>Models multiple treatments (e.g., multiple drugs) and/or multiple outcomes (e.g., multiple health metrics).</li>
+<li>Shares information across arms/outcomes to improve estimation efficiency.</li>
+<li>Uses a joint objective function to optimize splits for all treatments and outcomes simultaneously.</li>
+</ul></li>
+</ul>
+</section>
+<section id="advantages" class="level3">
+<h3 class="anchored" data-anchor-id="advantages">Advantages</h3>
+<ul>
+<li>Handles complex experiments with multiple treatments and outcomes.</li>
+<li>Captures heterogeneity in treatment effects across subgroups.</li>
+<li>Robust to non-linear relationships and high-dimensional covariates.</li>
+<li>Improves efficiency by sharing information across arms/outcomes.</li>
+</ul>
+</section>
+<section id="limitations" class="level3">
+<h3 class="anchored" data-anchor-id="limitations">Limitations</h3>
+<ul>
+<li>Requires sufficient sample size for each treatment arm and outcome.</li>
+<li>Assumes unconfoundedness (no unmeasured confounders) unless combined with other methods (e.g., instrumental variables).</li>
+<li>Computationally intensive for large datasets or many outcomes.</li>
+<li>Interpretability can be challenging due to complex output (multiple effects per individual).</li>
+</ul>
+</section>
+</section>
+<section id="multi-armmulti-outcome-causal-forest-in-python" class="level2">
+<h2 class="anchored" data-anchor-id="multi-armmulti-outcome-causal-forest-in-python">Multi-arm/multi-outcome Causal Forest in Python</h2>
+<p>This tutorial implements a <strong>multi-arm/multi-outcome causal forest</strong> with <code>MultiArmCausalForest</code> from PyCausalML. The example simulates a three-arm treatment and two outcomes from <code>Data/patients.csv</code>.</p>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>This notebook fits <strong><code>MultiArmCausalForest</code></strong> from <strong><a href="https://github.com/zia207/PyCausalML">PyCausalML</a></strong> (<code>pycausalml.tree_based_models</code>).</p>
+<p><code>fit(X, treatment, y)</code> returns the fitted estimator. <code>predict</code> returns a NumPy array of conditional average treatment effects. A fitted model also exposes <code>explain</code> and <code>plot_shap</code>.</p>
+<p>Install the package from this repository, with the plotting and boosting extras.</p>
+<p>The three-arm patient example is built with <code>make_patient_multiarm</code> from <code>causal_tree_methods.py</code> in this folder. Arm labels are coded <code>placebo=0</code>, <code>A=1</code>, <code>B=2</code>, and the baseline arm is <code>0</code>.</p>
+<div id="c1036f89" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:37.493513Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:37.493067Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:42.608666Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:42.606774Z&quot;}}" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _repo_root() <span class="op">-&gt;</span> Path:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    here <span class="op">=</span> Path.cwd().resolve()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cand <span class="kw">in</span> [here, <span class="op">*</span>here.parents]:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (cand <span class="op">/</span> <span class="st">"pyproject.toml"</span>).is_file() <span class="kw">and</span> (cand <span class="op">/</span> <span class="st">"src"</span> <span class="op">/</span> <span class="st">"pycausalml"</span>).is_dir():</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> cand</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"PyCausalML repository was not found. Run this notebook from the repository."</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> _repo_root()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>subprocess.check_call([</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sys.executable, <span class="st">"-m"</span>, <span class="st">"pip"</span>, <span class="st">"install"</span>, <span class="st">"-q"</span>, <span class="st">"-e"</span>, <span class="ss">f"</span><span class="sc">{</span>root<span class="sc">}</span><span class="ss">[plot,boost,shap]"</span>, <span class="st">"statsmodels"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyCausalML ready."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>PyCausalML ready.</code></pre>
+</div>
+</div>
+<div id="4779a480" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:42.614096Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:42.613634Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:45.980613Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:45.979142Z&quot;}}" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pycausalml <span class="im">import</span> (</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    MultiArmCausalForest,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    explain_cate,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _add_methods_path():</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    here <span class="op">=</span> Path.cwd().resolve()</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cand <span class="kw">in</span> [here, <span class="op">*</span>here.parents]:</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> rel <span class="kw">in</span> (</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            Path(<span class="st">"causal_tree_methods.py"</span>),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>            Path(<span class="st">"Tutorials"</span>) <span class="op">/</span> <span class="st">"05_01_Tree_Based_Models"</span> <span class="op">/</span> <span class="st">"causal_tree_methods.py"</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>            Path(<span class="st">"Notebook"</span>) <span class="op">/</span> <span class="st">"05_01_Tree_Based_Models"</span> <span class="op">/</span> <span class="st">"causal_tree_methods.py"</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        ):</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>            path <span class="op">=</span> cand <span class="op">/</span> rel</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> path.is_file():</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                sys.path.insert(<span class="dv">0</span>, <span class="bu">str</span>(path.parent))</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(<span class="st">"causal_tree_methods.py was not found"</span>)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>_add_methods_path()</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> causal_tree_methods <span class="im">import</span> (</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    make_patient_multiarm,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_repo_root(start<span class="op">=</span><span class="va">None</span>) <span class="op">-&gt;</span> Path:</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    here <span class="op">=</span> Path(start <span class="kw">or</span> Path.cwd()).resolve()</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cand <span class="kw">in</span> [here, <span class="op">*</span>here.parents]:</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (cand <span class="op">/</span> <span class="st">"Data"</span>).is_dir() <span class="kw">and</span> (cand <span class="op">/</span> <span class="st">"Image"</span>).is_dir():</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> cand</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(<span class="st">"Could not find a folder containing Data/ and Image/."</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> data_path(filename: <span class="bu">str</span>) <span class="op">-&gt;</span> Path:</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> find_repo_root() <span class="op">/</span> <span class="st">"Data"</span> <span class="op">/</span> filename</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.dpi"</span>] <span class="op">=</span> <span class="dv">110</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Imported PyCausalML"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>Imported PyCausalML</code></pre>
+</div>
+</div>
+<section id="prepare-the-patient-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="prepare-the-patient-dataset">Prepare the patient dataset</h3>
+<p>The example is built from <code>Data/patients.csv</code>: real age, comorbidity, baseline risk, and sex, a simulated three-arm treatment (<code>placebo</code>, <code>A</code>, <code>B</code>), observed log length of stay, and a simulated binary clinical response that improves under A and more so under B.</p>
+<p><code>make_patient_multiarm</code> builds that design from <code>Data/patients.csv</code>:</p>
+<ul>
+<li>Draws a three-level <code>treatment</code> (<code>placebo</code>, <code>A</code>, <code>B</code>) with probabilities 40%, 30%, and 30%.</li>
+<li>Keeps observed log length of stay (<code>log_los</code>) as the first outcome. Treatment is randomized, so its effect on length of stay is null.</li>
+<li>Simulates a binary clinical <code>response</code> that is higher under arm A and higher still under arm B.</li>
+</ul>
+<div id="ec3c12a8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:45.986355Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:45.985913Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:46.019233Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:46.018022Z&quot;}}" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>design <span class="op">=</span> make_patient_multiarm(n<span class="op">=</span><span class="dv">2000</span>, random_state<span class="op">=</span><span class="dv">123</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>frame <span class="op">=</span> design[<span class="st">"frame"</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>X, Y_mat, W <span class="op">=</span> design[<span class="st">"X"</span>], design[<span class="st">"Y"</span>], design[<span class="st">"W"</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> design[<span class="st">"feature_names"</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>outcome_names <span class="op">=</span> design[<span class="st">"outcome_names"</span>]</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">123</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="bu">len</span>(W)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>train_idx <span class="op">=</span> rng.choice(n, size<span class="op">=</span><span class="bu">int</span>(<span class="fl">0.8</span> <span class="op">*</span> n), replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>test_idx <span class="op">=</span> np.setdiff1d(np.arange(n), train_idx)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>X_train, X_test <span class="op">=</span> X[train_idx], X[test_idx]</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>W_train, W_test <span class="op">=</span> W[train_idx], W[test_idx]</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>Y_train, Y_test <span class="op">=</span> Y_mat[train_idx], Y_mat[test_idx]</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.Series(W_train).value_counts())</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"outcomes"</span>, outcome_names)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>placebo    641
+A          498
+B          461
+Name: count, dtype: int64
+outcomes ['log_los', 'response']</code></pre>
+</div>
+</div>
+</section>
+<section id="train-the-multi-armmulti-outcome-causal-forest" class="level3">
+<h3 class="anchored" data-anchor-id="train-the-multi-armmulti-outcome-causal-forest">Train the Multi-arm/Multi-outcome Causal Forest</h3>
+<p>The arms are placebo, A, and B, and the outcomes are log length of stay and clinical response. <code>MultiArmCausalForest</code> estimates contrasts against a baseline for one outcome at a time, so we fit a separate model for each outcome.</p>
+<div id="afda05b8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:46.024496Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:46.024298Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.131383Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.130082Z&quot;}}" data-execution_count="4">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ARM <span class="op">=</span> {<span class="st">"placebo"</span>: <span class="dv">0</span>, <span class="st">"A"</span>: <span class="dv">1</span>, <span class="st">"B"</span>: <span class="dv">2</span>}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>CONTRAST <span class="op">=</span> {<span class="dv">1</span>: <span class="st">"A - placebo"</span>, <span class="dv">2</span>: <span class="st">"B - placebo"</span>}</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encode_arm(labels):</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array([ARM[<span class="bu">str</span>(a)] <span class="cf">for</span> a <span class="kw">in</span> np.asarray(labels)])</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> contrast_frame(model, rows):</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> np.asarray(model.predict(rows))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    columns <span class="op">=</span> [CONTRAST[<span class="bu">int</span>(arm)] <span class="cf">for</span> arm <span class="kw">in</span> model.arms_]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame(pred, columns<span class="op">=</span>columns)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ate_table(model):</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">=</span> []</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> arm, forest <span class="kw">in</span> <span class="bu">zip</span>(model.arms_, model.forests_):</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        ate <span class="op">=</span> forest.average_treatment_effect()</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        rows.append({</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">"contrast"</span>: CONTRAST[<span class="bu">int</span>(arm)],</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">"estimate"</span>: ate[<span class="st">"estimate"</span>],</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">"std.err"</span>: ate[<span class="st">"std.err"</span>],</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame(rows)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>W_train_code <span class="op">=</span> encode_arm(W_train)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>macf_log_los <span class="op">=</span> MultiArmCausalForest(baseline<span class="op">=</span><span class="dv">0</span>, num_trees<span class="op">=</span><span class="dv">60</span>, min_node_size<span class="op">=</span><span class="dv">8</span>, random_state<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>macf_response <span class="op">=</span> MultiArmCausalForest(baseline<span class="op">=</span><span class="dv">0</span>, num_trees<span class="op">=</span><span class="dv">60</span>, min_node_size<span class="op">=</span><span class="dv">8</span>, random_state<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>macf_log_los.fit(X_train, W_train_code, Y_train[:, <span class="dv">0</span>], feature_names<span class="op">=</span>feature_names)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>macf_response.fit(X_train, W_train_code, Y_train[:, <span class="dv">1</span>], feature_names<span class="op">=</span>feature_names)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Fitted one forest per outcome"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>Fitted one forest per outcome</code></pre>
+</div>
+</div>
+</section>
+<section id="predict-on-the-test-data-set" class="level3">
+<h3 class="anchored" data-anchor-id="predict-on-the-test-data-set">Predict on the test data set</h3>
+<div id="1e290a61" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.136625Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.136467Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.176093Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.174543Z&quot;}}" data-execution_count="5">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tau_hat_log_los <span class="op">=</span> contrast_frame(macf_log_los, X_test)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>tau_hat_response <span class="op">=</span> contrast_frame(macf_response, X_test)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"log length of stay"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tau_hat_log_los.head())</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"clinical response"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tau_hat_response.head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>log length of stay
+   A - placebo  B - placebo
+0     0.034385     0.283482
+1     0.015815    -0.142222
+2    -0.029373    -0.144031
+3    -0.156336     0.151620
+4    -0.116162     0.273966
+clinical response
+   A - placebo  B - placebo
+0     0.076200     0.504776
+1     0.225444     0.192521
+2     0.398804     0.322517
+3     0.208306     0.167362
+4     0.027868     0.089350</code></pre>
+</div>
+</div>
+</section>
+<section id="calculate-doubly-robust-average-treatment-effects-aipw" class="level3">
+<h3 class="anchored" data-anchor-id="calculate-doubly-robust-average-treatment-effects-aipw">Calculate Doubly Robust Average Treatment Effects (AIPW)</h3>
+<p>We compute the average treatment effects (ATE) for each arm relative to placebo with the doubly robust scores stored on each fitted forest.</p>
+<div id="bae57294" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.180222Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.180068Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.189769Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.188245Z&quot;}}" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Average treatment effects for log_los"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ate_table(macf_log_los).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Average treatment effects for response"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ate_table(macf_response).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>Average treatment effects for log_los
+      contrast  estimate  std.err
+0  A - placebo     0.050    0.032
+1  B - placebo     0.102    0.032
+Average treatment effects for response
+      contrast  estimate  std.err
+0  A - placebo     0.106     0.03
+1  B - placebo     0.213     0.03</code></pre>
+</div>
+</div>
+</section>
+<section id="plot-variable-importance" class="level3">
+<h3 class="anchored" data-anchor-id="plot-variable-importance">Plot Variable Importance</h3>
+<p>Finally, we plot covariate importance for each outcome.</p>
+<section id="log-length-of-stay" class="level4">
+<h4 class="anchored" data-anchor-id="log-length-of-stay">Log length of stay</h4>
+<div id="a5a3a976" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.194186Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.194002Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.313120Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.311656Z&quot;}}" data-execution_count="7">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_importance(model, title):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    imp <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Variable"</span>: feature_names,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Importance"</span>: model.feature_importance(),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    }).sort_values(<span class="st">"Importance"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">3.5</span>))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    ax.barh(imp[<span class="st">"Variable"</span>], imp[<span class="st">"Importance"</span>], color<span class="op">=</span><span class="st">"steelblue"</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>plot_importance(macf_log_los, <span class="st">"Variable importance for log_los"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_05_multi_arm_causal_forest_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="clinical-response" class="level4">
+<h4 class="anchored" data-anchor-id="clinical-response">Clinical response</h4>
+<div id="dd8efa6b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.317652Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.317463Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.417919Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.416433Z&quot;}}" data-execution_count="8">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>plot_importance(macf_response, <span class="st">"Variable importance for response"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_05_multi_arm_causal_forest_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="shap-values-for-each-outcome" class="level3">
+<h3 class="anchored" data-anchor-id="shap-values-for-each-outcome">SHAP values for each outcome</h3>
+<p><code>explain_cate()</code> computes SHAP values for the CATE predictions of each outcome. Here we show both log length of stay and clinical response.</p>
+<p><code>contrast_frame</code> labels the columns of <code>predict</code> as <strong>“A - placebo”</strong> and <strong>“B - placebo”</strong>.</p>
+<div id="3c81c0b8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.422283Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.422140Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.443202Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.441934Z&quot;}}" data-execution_count="9">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(contrast_frame(macf_response, X_test).columns.tolist())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>['A - placebo', 'B - placebo']</code></pre>
+</div>
+</div>
+<p>Those column names are <strong>“A - placebo”</strong> and <strong>“B - placebo”</strong>.</p>
+<section id="predicted-contrasts" class="level4">
+<h4 class="anchored" data-anchor-id="predicted-contrasts">Predicted contrasts</h4>
+<div id="442329fd" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.448031Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.447881Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.478013Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.476771Z&quot;}}" data-execution_count="10">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(contrast_frame(macf_log_los, X_test[:<span class="dv">5</span>]))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(contrast_frame(macf_response, X_test[:<span class="dv">5</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>   A - placebo  B - placebo
+0     0.034385     0.283482
+1     0.015815    -0.142222
+2    -0.029373    -0.144031
+3    -0.156336     0.151620
+4    -0.116162     0.273966
+   A - placebo  B - placebo
+0     0.076200     0.504776
+1     0.225444     0.192521
+2     0.398804     0.322517
+3     0.208306     0.167362
+4     0.027868     0.089350</code></pre>
+</div>
+</div>
+</section>
+<section id="prediction-wrappers-one-per-contrast" class="level4">
+<h4 class="anchored" data-anchor-id="prediction-wrappers-one-per-contrast">Prediction wrappers (one per contrast)</h4>
+<p>Each wrapper returns one contrast column so <code>explain_cate()</code> can explain one arm at a time.</p>
+<div id="d7fa8d21" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.483235Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.483086Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:47.488891Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:47.487514Z&quot;}}" data-execution_count="11">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> _Contrast:</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, column):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> model</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.column <span class="op">=</span> column</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.feature_names_ <span class="op">=</span> feature_names</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> predict(<span class="va">self</span>, new_x):</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.asarray(<span class="va">self</span>.model.predict(new_x))[:, <span class="va">self</span>.column]</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Contrast wrappers ready:"</span>, <span class="bu">list</span>(CONTRAST.values()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>Contrast wrappers ready: ['A - placebo', 'B - placebo']</code></pre>
+</div>
+</div>
+</section>
+<section id="compute-shap-values-for-each-contrast" class="level4">
+<h4 class="anchored" data-anchor-id="compute-shap-values-for-each-contrast">Compute SHAP values for each contrast</h4>
+<div id="22795a39" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:47.493737Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:47.493559Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:48.536711Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:48.535320Z&quot;}}" data-execution_count="12">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sv_A <span class="op">=</span> explain_cate(_Contrast(macf_response, <span class="dv">0</span>), X_test, feature_names<span class="op">=</span>feature_names, max_samples<span class="op">=</span><span class="dv">30</span>, random_state<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sv_B <span class="op">=</span> explain_cate(_Contrast(macf_response, <span class="dv">1</span>), X_test, feature_names<span class="op">=</span>feature_names, max_samples<span class="op">=</span><span class="dv">30</span>, random_state<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(np.<span class="bu">round</span>(sv_A.values[:<span class="dv">3</span>], <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>[[-0.142 -0.194 -0.152  0.   ]
+ [ 0.067 -0.302  0.071  0.016]
+ [ 0.047  0.     0.093  0.001]]</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="exact-kernel-shap-values-preview" class="level3">
+<h3 class="anchored" data-anchor-id="exact-kernel-shap-values-preview">Exact Kernel SHAP values (preview)</h3>
+<div id="7336ff02" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:48.541916Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:48.541750Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:48.549586Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:48.547926Z&quot;}}" data-execution_count="13">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.DataFrame(sv_A.values, columns<span class="op">=</span>feature_names).head().<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>   age_z  comorbidity_z  baseline_risk_z  gender_male
+0 -0.142         -0.194           -0.152        0.000
+1  0.067         -0.302            0.071        0.016
+2  0.047          0.000            0.093        0.001
+3  0.011         -0.294           -0.214       -0.000
+4 -0.046         -0.238           -0.081       -0.019</code></pre>
+</div>
+</div>
+</section>
+<section id="shap-summaries" class="level3">
+<h3 class="anchored" data-anchor-id="shap-summaries">SHAP summaries</h3>
+<div id="66f134f8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:48.553738Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:48.553552Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:48.561760Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:48.559746Z&quot;}}" data-execution_count="14">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"A vs placebo — response"</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.DataFrame({<span class="st">"feature"</span>: feature_names, <span class="st">"mean_abs_shap"</span>: np.<span class="bu">abs</span>(sv_A.values).mean(<span class="dv">0</span>)}))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>A vs placebo — response
+           feature  mean_abs_shap
+0            age_z       0.078815
+1    comorbidity_z       0.238589
+2  baseline_risk_z       0.089441
+3      gender_male       0.019149</code></pre>
+</div>
+</div>
+</section>
+<section id="importance-plots" class="level3">
+<h3 class="anchored" data-anchor-id="importance-plots">Importance Plots</h3>
+<div id="f9410494" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:48.566280Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:48.565952Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:48.746318Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:48.744756Z&quot;}}" data-execution_count="15">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, sv, title <span class="kw">in</span> (</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    (axes[<span class="dv">0</span>], sv_A, <span class="st">"Response: A vs placebo"</span>),</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    (axes[<span class="dv">1</span>], sv_B, <span class="st">"Response: B vs placebo"</span>),</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    order <span class="op">=</span> np.argsort(np.<span class="bu">abs</span>(sv.values).mean(<span class="dv">0</span>))</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    ax.barh(np.array(feature_names)[order], np.<span class="bu">abs</span>(sv.values).mean(<span class="dv">0</span>)[order], color<span class="op">=</span><span class="st">"#4C72B0"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_05_multi_arm_causal_forest_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="dependence-plots-for-each-covariate" class="level3">
+<h3 class="anchored" data-anchor-id="dependence-plots-for-each-covariate">Dependence plots for each covariate</h3>
+<div id="1b4d29c9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:48.751005Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:48.750838Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:48.755403Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:48.754015Z&quot;}}" data-execution_count="16">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Features:"</span>, feature_names)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-undefined">
+<pre><code>Features: ['age_z', 'comorbidity_z', 'baseline_risk_z', 'gender_male']</code></pre>
+</div>
+</div>
+<div id="22f90f73" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:07:48.760079Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:07:48.759894Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:07:49.015592Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:07:49.014101Z&quot;}}" data-execution_count="17">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sv_A.plot_dependence(<span class="st">"age_z"</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>sv_B.plot_dependence(<span class="st">"baseline_risk_z"</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_05_multi_arm_causal_forest_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_05_multi_arm_causal_forest_files/figure-html/cell-18-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="summary-and-conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="summary-and-conclusion">Summary and Conclusion</h2>
+<p>Multi-arm/multi-outcome causal forests are powerful tools for estimating heterogeneous treatment effects in complex settings with multiple treatments and outcomes. By leveraging the flexibility of random forests, they provide robust estimates that account for individual differences and correlations between outcomes. This approach is particularly useful in fields like healthcare, policy evaluation, and marketing, where understanding the nuanced effects of different interventions is crucial. This tutorial used <code>MultiArmCausalForest</code> from PyCausalML to analyze treatment effects on two outcomes at once. This approach allows researchers to gain deeper insights into the effectiveness of various interventions across diverse populations and outcomes, ultimately leading to more informed decision-making.</p>
+<p>SHAP values from <code>explain_cate()</code> interpret the heterogeneous treatment effects, so the same workflow covers estimation and interpretation.</p>
+<p>For a boosted multi-arm approach that fits one outcome model per arm and then forms contrasts relative to a baseline, see the multi-arm causal boost tutorial in this folder.</p>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<ol type="1">
+<li><p>Wager, S., &amp; Athey, S. (2018). Estimation and Inference of Heterogeneous Treatment Effects using Random Forests. JASA.</p></li>
+<li><p>Athey, S., Tibshirani, J., &amp; Wager, S. (2019). Generalized Random Forests. Ann. Statist.</p></li>
+<li><p>The estimator in this tutorial is <code>MultiArmCausalForest</code> in PyCausalML.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/zia207\.github\.io\/PyCausalML\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.html" class="pagination-link" aria-label="Instrumental Forest">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Instrumental Forest</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" class="pagination-link" aria-label="Causal XGBoost">
+        <span class="nav-page-text">Causal XGBoost</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© CC-By Zia Ahmed, Upatta Analytics, 2026</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

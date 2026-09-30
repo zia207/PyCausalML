@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>uplift_randomforest – PyCausalML</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.html" rel="next">
+<link href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f1aadacce99040138bbb613f9330654f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c3ddef8e9936373b1ee063945a43a984.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<style>
+.navbar-logo img { max-height: 42px; width: auto; }
+#quarto-sidebar .sidebar-logo img { max-width: 168px; height: auto; }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="index.qmd" class="navbar-brand navbar-brand-logo">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo light-content">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="index.qmd">
+    <span class="navbar-title">PyCausalML</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/02_08_05_00_casual_ml_introduction.html"> 
+<span class="menu-text">Tutorial</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/00-scientific-terminology-glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://sites.google.com/view/r-data-sci-env/home"> <i class="bi bi-house" role="img" aria-label="Upatta Analytics">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/zia207/PyCausalML"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/zia-ahmed207"> <i class="bi bi-linkedin" role="img" aria-label="LinkedIn">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:zia207@gmail.com"> <i class="bi bi-envelope" role="img" aria-label="Email">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.html"><strong>Uplift Learners</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.html">Uplift Random Forest</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.html"><strong>Uplift Learners</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.html">Uplift Random Forest</a></li></ol></nav></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="index.qmd" class="sidebar-logo-link">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Package Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/02_08_05_00_casual_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Tree-Based Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Tree-Based Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_02_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_03_causal_survival_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Survival Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multi-Arm Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal XGBoost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted IV Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted Multi-Arm Causal Model</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Meta-Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_00_meta_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Meta-Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_01_meta_learners_binary_treatments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binary Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_02_meta_learners_multiple_discrete_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Discrete Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_03_meta_learners_continuous_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_04_tmle_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Targeted Maximum Likelihood Estimation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_05_meta_learners_domain_adaptation_learner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Domain Adaptation Learner</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_06_meta_learners_doubly_robust_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Uplift Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Uplift Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_01_uplift_trees_classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Classification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Uplift Random Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift XGBoost</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Double Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_00_double_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_01_double_ml_from_basics_to_application.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bias and Orthogonalization</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_02_double_ml_single_multiple_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single and Multiple Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_03_double_ml_did.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_04_double_ml_iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_05_double_ml_dynamic_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dynamic Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_06_double_ml_weighted_double_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weighted Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_07_double_ml_cluster_robust.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cluster-Robust Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_08_double_ml_ensemble_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ensemble Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Deep Causal Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_00_DeepCausalML_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Deep Causal Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Treatment Effect Estimators</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_00_DeepCausalML_treatment_effect_estimators_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Treatment Effect Estimators</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_01_DeepCausalML_TARNET.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">TARNet: Treatment-Agnostic Representation Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_02_DeepCausalML_CFRNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CFRNet: Counterfactual Regression Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_03_DeepCausalML_DragonNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DragonNet: Propensity-Adjusted Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_04_DeepCausalML_GANITE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GANITE: Generative Adversarial Treatment Effects</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_05_DeepCausalML_NeuralDML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NeuralDML: Neural Double Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Generative Latent-Variable Causal Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_00_DeepCausalML_GLVCM_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to GLVCMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_01_DeepCausalML_CausalVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalVAE: Causal Variational Autoencoder</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_02_DeepCausalML_iVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">iVAE: Identifiable Variational Autoencoders</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_03_DeepCausalML_CausalDiscrepancyVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalDiscrepancyVAE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_04_DeepCausalML_CausalGAN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalGAN: Causal Generative Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_05_DeepCausalML_DSCM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Deep Structural Causal Models (DSCMs)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_06_DeepCausalML_CausalEGM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalEGM: Causal Encoding Generative Modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Structural Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_00_DeepCausalML_structural_learning_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Structural Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_01_DeepCausalML_NOTEARS.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NOTEARS: Continuous Optimization Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_02_DeepCausalML_DagGNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAG-GNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_03_DeepCausalML_GranDag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GraN-DAG</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_04_DeepCausalML_DAGMA_NoCurl.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAGMA and DAG-NoCurl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_05_DeepCausalML_CASTLE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CASTLE: Causal Structure Learning Regularization</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Temporal Deep Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_00_DeepCausalML_timeseries_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Temporal Deep Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_01_DeepCausalML_timeseries_neural_granger_causality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Neural Granger Causality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_02_DeepCausalML_timeseries_structural_causal_model_SMC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structural Causal Models with Deep Components</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_03_DeepCausalML_attention_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Attention and Transformer Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_04_DeepCausalML_timeseries_RNN_LSTM_causalML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">RNN and LSTM Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_05_DeepCausalML_timeseries_graphNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graph Neural Network Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_06_DeepCausalML_timeseries_counterfactual_potential.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counterfactual and Potential Outcomes Models</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Bayesian Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_00_bayesian_causal_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Bayesian Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_01_bayesian_causal_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Causal Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_02_graphs_and_bayesian_networks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graphs and Bayesian Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_03_bayesian_structural_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Structural Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_04_bayesian_quasi_experiments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experiments</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Policy Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_00_policy_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Policy Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_01_doubleml_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_02_econml_dr_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_03_econml_policy_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Forest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Quasi-Experiments</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_00_quasi_experiments_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Quasi-Experiments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_01_difference_in_differences.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_02_synthetic_control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Synthetic Control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_03_regression_discontinuity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression Discontinuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_04_instrumental_variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_05_bayesian_causal_inference_quasi_experimental.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experimental Inference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Terminology</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/00-scientific-terminology-glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A–Z glossary of causal inference and machine learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On This Page</h2>
+   
+  <ul>
+  <li><a href="#uplift-random-forest-regression" id="toc-uplift-random-forest-regression" class="nav-link active" data-scroll-target="#uplift-random-forest-regression">3.3 Uplift Random Forest Regression</a>
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#why-an-ensemble-from-single-trees-to-forests" id="toc-why-an-ensemble-from-single-trees-to-forests" class="nav-link" data-scroll-target="#why-an-ensemble-from-single-trees-to-forests">Why an ensemble? From single trees to forests</a>
+  <ul class="collapse">
+  <li><a href="#splitting-rules" id="toc-splitting-rules" class="nav-link" data-scroll-target="#splitting-rules">Splitting rules</a>
+  <ul class="collapse">
+  <li><a href="#binary-outcomes" id="toc-binary-outcomes" class="nav-link" data-scroll-target="#binary-outcomes">Binary outcomes</a></li>
+  </ul></li>
+  <li><a href="#continuous-outcomes" id="toc-continuous-outcomes" class="nav-link" data-scroll-target="#continuous-outcomes">Continuous outcomes</a>
+  <ul class="collapse">
+  <li><a href="#from-ate-to-targeted-policy" id="toc-from-ate-to-targeted-policy" class="nav-link" data-scroll-target="#from-ate-to-targeted-policy">From ATE to targeted policy</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#set-up" id="toc-set-up" class="nav-link" data-scroll-target="#set-up">Set Up</a>
+  <ul class="collapse">
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
+  <li><a href="#load-and-inspect" id="toc-load-and-inspect" class="nav-link" data-scroll-target="#load-and-inspect">Load and inspect</a></li>
+  <li><a href="#data-processing" id="toc-data-processing" class="nav-link" data-scroll-target="#data-processing">Data processing</a></li>
+  <li><a href="#train-test-split" id="toc-train-test-split" class="nav-link" data-scroll-target="#train-test-split">Train / test split</a></li>
+  <li><a href="#feature-selection-f-filter" id="toc-feature-selection-f-filter" class="nav-link" data-scroll-target="#feature-selection-f-filter">Feature selection (F-filter)</a>
+  <ul class="collapse">
+  <li><a href="#feature-importance-plot" id="toc-feature-importance-plot" class="nav-link" data-scroll-target="#feature-importance-plot">Feature importance plot</a></li>
+  <li><a href="#define-feature-subsets" id="toc-define-feature-subsets" class="nav-link" data-scroll-target="#define-feature-subsets">Define feature subsets</a></li>
+  </ul></li>
+  <li><a href="#comparing-learners-across-feature-subsets" id="toc-comparing-learners-across-feature-subsets" class="nav-link" data-scroll-target="#comparing-learners-across-feature-subsets">Comparing Learners across Feature Subsets</a></li>
+  <li><a href="#t-learner" id="toc-t-learner" class="nav-link" data-scroll-target="#t-learner">T-Learner</a></li>
+  <li><a href="#r-learner" id="toc-r-learner" class="nav-link" data-scroll-target="#r-learner">R-Learner</a></li>
+  <li><a href="#s-learner" id="toc-s-learner" class="nav-link" data-scroll-target="#s-learner">S-Learner</a></li>
+  <li><a href="#auuc-summary-table" id="toc-auuc-summary-table" class="nav-link" data-scroll-target="#auuc-summary-table">AUUC summary table</a></li>
+  </ul></li>
+  <li><a href="#uplift-random-forest" id="toc-uplift-random-forest" class="nav-link" data-scroll-target="#uplift-random-forest">Uplift random forest</a>
+  <ul class="collapse">
+  <li><a href="#t-learner-forest" id="toc-t-learner-forest" class="nav-link" data-scroll-target="#t-learner-forest">T-learner forest</a></li>
+  <li><a href="#uplift-forest-treatment-effect-splits" id="toc-uplift-forest-treatment-effect-splits" class="nav-link" data-scroll-target="#uplift-forest-treatment-effect-splits">Uplift forest (treatment-effect splits)</a></li>
+  </ul></li>
+  <li><a href="#evaluation" id="toc-evaluation" class="nav-link" data-scroll-target="#evaluation">Evaluation</a>
+  <ul class="collapse">
+  <li><a href="#gain-curve-on-the-test-set" id="toc-gain-curve-on-the-test-set" class="nav-link" data-scroll-target="#gain-curve-on-the-test-set">Gain curve on the test set</a>
+  <ul class="collapse">
+  <li><a href="#distribution-of-predicted-cate" id="toc-distribution-of-predicted-cate" class="nav-link" data-scroll-target="#distribution-of-predicted-cate">Distribution of predicted CATE</a></li>
+  </ul></li>
+  <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance">Variable importance</a></li>
+  </ul></li>
+  <li><a href="#interpretable-single-tree-models" id="toc-interpretable-single-tree-models" class="nav-link" data-scroll-target="#interpretable-single-tree-models">Interpretable Single-Tree Models</a>
+  <ul class="collapse">
+  <li><a href="#interaction-tree-it" id="toc-interaction-tree-it" class="nav-link" data-scroll-target="#interaction-tree-it">Interaction tree (IT)</a></li>
+  <li><a href="#causal-inference-tree-cit" id="toc-causal-inference-tree-cit" class="nav-link" data-scroll-target="#causal-inference-tree-cit">Causal inference tree (CIT)</a></li>
+  </ul></li>
+  <li><a href="#explaining-predicted-cate" id="toc-explaining-predicted-cate" class="nav-link" data-scroll-target="#explaining-predicted-cate">Explaining predicted CATE</a>
+  <ul class="collapse">
+  <li><a href="#global-feature-importance" id="toc-global-feature-importance" class="nav-link" data-scroll-target="#global-feature-importance">Global feature importance</a></li>
+  <li><a href="#dependence-plots" id="toc-dependence-plots" class="nav-link" data-scroll-target="#dependence-plots">Dependence plots</a></li>
+  <li><a href="#waterfall-plot-highest-uplift-unit" id="toc-waterfall-plot-highest-uplift-unit" class="nav-link" data-scroll-target="#waterfall-plot-highest-uplift-unit">Waterfall plot: highest-uplift unit</a></li>
+  <li><a href="#shap-on-the-test-set" id="toc-shap-on-the-test-set" class="nav-link" data-scroll-target="#shap-on-the-test-set">SHAP on the test set</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a>
+  <ul class="collapse">
+  <li><a href="#key-reminders" id="toc-key-reminders" class="nav-link" data-scroll-target="#key-reminders">Key reminders</a></li>
+  </ul></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Image/05_03_uplift_learners.png" class="img-fluid figure-img"></p>
+<figcaption>Python Banner</figcaption>
+</figure>
+</div>
+<section id="uplift-random-forest-regression" class="level1">
+<h1>3.3 Uplift Random Forest Regression</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>A standard predictive model asks: <em>“What outcome do we expect for this unit?”</em></p>
+<p>An <strong>uplift model</strong> asks a different question:</p>
+<blockquote class="blockquote">
+<p><em>“How much would the outcome change <strong>because of the treatment</strong> for this unit, given their covariates?”</em></p>
+</blockquote>
+<p>That quantity is the <strong>Conditional Average Treatment Effect (CATE)</strong>. For a unit with covariates <span class="math inline">\(X = x\)</span> and a continuous outcome <span class="math inline">\(Y\)</span>:</p>
+<p><span class="math display">\[\tau(x) = \mathbb{E}[Y \mid T = 1, X = x] - \mathbb{E}[Y \mid T = 0, X = x]\]</span></p>
+<p>where <span class="math inline">\(T = 1\)</span> is treated and <span class="math inline">\(T = 0\)</span> is control. <strong>Heterogeneity</strong> means <span class="math inline">\(\tau(x)\)</span> varies with <span class="math inline">\(x\)</span>: some subgroups benefit strongly, others barely, and some may be harmed.</p>
+<p>For <strong>binary outcomes</strong> (e.g.&nbsp;conversion yes/no), the CATE is:</p>
+<p><span class="math display">\[\tau(x) = P(Y = 1 \mid T = 1, X = x) - P(Y = 1 \mid T = 0, X = x)\]</span></p>
+</section>
+<section id="why-an-ensemble-from-single-trees-to-forests" class="level2">
+<h2 class="anchored" data-anchor-id="why-an-ensemble-from-single-trees-to-forests">Why an ensemble? From single trees to forests</h2>
+<p>A single uplift <strong>tree</strong> partitions covariate space into regions and assigns each a local treatment-effect estimate. This is interpretable, but unstable — small changes in data can produce very different splits.</p>
+<p>An uplift random <strong>forest</strong> improves stability by <strong>bagging</strong> (bootstrap aggregating) many trees:</p>
+<ol type="1">
+<li>Draw a bootstrap sample of the training data.</li>
+<li>Fit one uplift tree on that sample using a <strong>treatment-aware splitting rule</strong>.</li>
+<li>Repeat for <span class="math inline">\(B\)</span> trees (<code>n_trees</code> in <code>UpliftRandomForest</code>).</li>
+<li>For a new unit <span class="math inline">\(x\)</span>, average leaf-level CATE estimates across all trees:</li>
+</ol>
+<p><span class="math display">\[\hat{\tau}(x) = \frac{1}{B} \sum_{b=1}^{B} \hat{\tau}_b(x)\]</span></p>
+<p>Averaging reduces variance and produces more reliable ranking of units by uplift than a single tree — the same motivation as standard random forests, but every tree is built to separate <strong>treatment effect heterogeneity</strong>, not just outcome levels.</p>
+<section id="splitting-rules" class="level3">
+<h3 class="anchored" data-anchor-id="splitting-rules">Splitting rules</h3>
+<section id="binary-outcomes" class="level4">
+<h4 class="anchored" data-anchor-id="binary-outcomes">Binary outcomes</h4>
+<p>Each node holds treated and control units. The algorithm finds the split that maximises <strong>divergence</strong> between treatment and control response distributions in the child nodes:</p>
+<p><span class="math display">\[\text{gain} = \frac{n_\ell}{n}\, D(p^\ell, q^\ell) + \frac{n_r}{n}\, D(p^r, q^r) - D(p, q)\]</span></p>
+<p>where <span class="math inline">\(p = P(Y=1 \mid T=1)\)</span>, <span class="math inline">\(q = P(Y=1 \mid T=0)\)</span> in the parent, and <span class="math inline">\(D(\cdot,\cdot)\)</span> is a divergence measure (KL, Euclidean, Chi-square, etc.). <strong>Contextual Treatment Selection (CTS)</strong> extends this to multi-arm settings.</p>
+</section>
+</section>
+<section id="continuous-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="continuous-outcomes">Continuous outcomes</h3>
+<p>PyCausalML has two forest styles for a continuous outcome:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 17%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Idea</th>
+<th>PyCausalML class</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>T-learner forest</strong></td>
+<td>Separate outcome forests for <span class="math inline">\(T=0\)</span> and <span class="math inline">\(T=1\)</span>; CATE is the difference of predicted means</td>
+<td><code>TLearner(learner="rf")</code></td>
+</tr>
+<tr class="even">
+<td><strong>Uplift forest</strong></td>
+<td>Bagged trees whose splits maximize the squared gap in <span class="math inline">\(\bar{Y}^{(1)} - \bar{Y}^{(0)}\)</span></td>
+<td><code>UpliftRandomForest</code></td>
+</tr>
+</tbody>
+</table>
+<p>The forest output is <span class="math inline">\(\hat{\tau}(x)\)</span> on the scale of <span class="math inline">\(Y\)</span>. Here <span class="math inline">\(Y\)</span> is <code>lnr</code> (log gonorrhea rate per 100,000), so a CATE of <span class="math inline">\(-0.12\)</span> means early repeal is associated with a <strong>0.12 log-point lower</strong> gonorrhea rate for that covariate profile.</p>
+<section id="from-ate-to-targeted-policy" class="level4">
+<h4 class="anchored" data-anchor-id="from-ate-to-targeted-policy">From ATE to targeted policy</h4>
+<p>The <strong>average treatment effect (ATE)</strong> summarises the treatment in one number. An uplift forest estimates the <strong>full profile</strong> <span class="math inline">\(\tau(x)\)</span>, enabling:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 33%">
+<col style="width: 39%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>CATE region</th>
+<th>Interpretation</th>
+<th>Targeting decision</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>High positive</strong> <span class="math inline">\(\tau(x)\)</span></td>
+<td>Large expected benefit from treatment</td>
+<td>Priority targets</td>
+</tr>
+<tr class="even">
+<td><strong>Near zero</strong></td>
+<td>Treatment adds little</td>
+<td>Skip / low priority</td>
+</tr>
+<tr class="odd">
+<td><strong>Negative</strong> <span class="math inline">\(\tau(x)\)</span></td>
+<td>Treatment may worsen outcomes</td>
+<td>Actively avoid treating</td>
+</tr>
+</tbody>
+</table>
+<p>Standard outcome prediction ranks high-baseline units highly even when treatment adds nothing. Uplift forests rank by <strong>incremental effect</strong>.</p>
+<p>The abortion dataset has a single policy indicator (<code>repeal</code>), so this notebook stays on the binary path. A multi-arm experiment would fit one forest per non-control arm.</p>
+</section>
+</section>
+</section>
+<section id="set-up" class="level2">
+<h2 class="anchored" data-anchor-id="set-up">Set Up</h2>
+<div id="a858dad1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:29.679489Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:29.679046Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:34.765462Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:34.763544Z&quot;}}" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _repo_root() <span class="op">-&gt;</span> Path:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    here <span class="op">=</span> Path.cwd().resolve()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cand <span class="kw">in</span> [here, <span class="op">*</span>here.parents]:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (cand <span class="op">/</span> <span class="st">"pyproject.toml"</span>).is_file() <span class="kw">and</span> (cand <span class="op">/</span> <span class="st">"src"</span> <span class="op">/</span> <span class="st">"pycausalml"</span>).is_dir():</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> cand</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"PyCausalML repository was not found. Run this notebook from the repository."</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> _repo_root()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>subprocess.check_call([</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sys.executable, <span class="st">"-m"</span>, <span class="st">"pip"</span>, <span class="st">"install"</span>, <span class="st">"-q"</span>, <span class="st">"-e"</span>, <span class="ss">f"</span><span class="sc">{</span>root<span class="sc">}</span><span class="ss">[plot,boost,shap]"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"causaldata"</span>, <span class="st">"statsmodels"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyCausalML ready."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>PyCausalML ready.</code></pre>
+</div>
+</div>
+<div id="709390a5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:34.771388Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:34.770925Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:38.462793Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:38.460516Z&quot;}}" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pycausalml <span class="im">import</span> (</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    CausalTree,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    InteractionTree,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    RLearner,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    SLearner,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    TLearner,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    UpliftRandomForest,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    UpliftXGBoost,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pycausalml.tree_based_models <span class="im">import</span> plot_causal_tree</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pycausalml.uplift_learners <span class="im">import</span> (</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    format_uplift_tree,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    plot_uplift_curve,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    plot_uplift_tree,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    qini_coefficient,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    qini_curve,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.dpi"</span>] <span class="op">=</span> <span class="dv">110</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f_filter(X, y, w, names, order<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Rank features by the partial F statistic of treatment interactions.</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">    Order 1 tests ``Y ~ X + W + X:W``. Higher orders add powers of ``X`` and</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">    the matching treatment interactions, following the F-filter idea in</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">    Zhao et al. (2020).</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> np.asarray(y, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> np.asarray(w, dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    rows <span class="op">=</span> []</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j, name <span class="kw">in</span> <span class="bu">enumerate</span>(names):</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        xj <span class="op">=</span> np.asarray(X[:, j], dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        scale <span class="op">=</span> <span class="bu">float</span>(np.std(xj))</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> scale <span class="op">&lt;</span> <span class="fl">1e-8</span>:</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>            rows.append({<span class="st">"feature"</span>: name, <span class="st">"score"</span>: np.nan})</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        xj <span class="op">=</span> (xj <span class="op">-</span> <span class="bu">float</span>(np.mean(xj))) <span class="op">/</span> scale</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>        main <span class="op">=</span> [np.ones(<span class="bu">len</span>(y)), w, xj]</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> power <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>, order <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>            main.append(xj <span class="op">**</span> power)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>        n_main <span class="op">=</span> <span class="bu">len</span>(main)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>        interactions <span class="op">=</span> [w <span class="op">*</span> (xj <span class="op">**</span> power) <span class="cf">for</span> power <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, order <span class="op">+</span> <span class="dv">1</span>)]</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        design <span class="op">=</span> np.column_stack(main <span class="op">+</span> interactions)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>            full <span class="op">=</span> sm.OLS(y, design).fit()</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>            restricted <span class="op">=</span> sm.OLS(y, design[:, :n_main]).fit()</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>            q <span class="op">=</span> design.shape[<span class="dv">1</span>] <span class="op">-</span> n_main</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>            score <span class="op">=</span> ((restricted.ssr <span class="op">-</span> full.ssr) <span class="op">/</span> q) <span class="op">/</span> (full.ssr <span class="op">/</span> full.df_resid)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>            score <span class="op">=</span> np.nan</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        rows.append({<span class="st">"feature"</span>: name, <span class="st">"score"</span>: <span class="bu">float</span>(score)})</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.DataFrame(rows).sort_values(<span class="st">"score"</span>, ascending<span class="op">=</span><span class="va">False</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_qini_models(y, treatment, scores, title):</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.8</span>, <span class="fl">4.4</span>))</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    table <span class="op">=</span> []</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, score <span class="kw">in</span> scores.items():</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>        curve <span class="op">=</span> qini_curve(y, treatment, score)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        ax.plot(curve[<span class="st">"fraction"</span>], curve[<span class="st">"qini"</span>], label<span class="op">=</span>name)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>        table.append({<span class="st">"model"</span>: name, <span class="st">"qini"</span>: qini_coefficient(y, treatment, score)})</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">"Fraction targeted"</span>)</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"Cumulative incremental gain"</span>)</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    ax.set_title(title)</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    ax.legend(frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fig, pd.DataFrame(table)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Imported PyCausalML"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Imported PyCausalML</code></pre>
+</div>
+</div>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">Data</h3>
+<p>The abortion dataset is loaded from <code>causaldata</code>, the same source as the causal-tree tutorial. It records state-year observations on gonorrhea rates, with a binary indicator for early repeal of abortion prohibition. Risky sexual behavior is proxied by gonorrhea incidence.</p>
+<p><strong>Key variables:</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 43%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fip</code></td>
+<td>State FIPS code</td>
+</tr>
+<tr class="even">
+<td><code>age</code></td>
+<td>Age in years</td>
+</tr>
+<tr class="odd">
+<td><code>race</code></td>
+<td>Race (1 = white, 2 = black)</td>
+</tr>
+<tr class="even">
+<td><code>sex</code></td>
+<td>Sex (1 = male, 2 = female)</td>
+</tr>
+<tr class="odd">
+<td><code>year</code></td>
+<td>Calendar year</td>
+</tr>
+<tr class="even">
+<td><code>t</code></td>
+<td>Rescaled time variable</td>
+</tr>
+<tr class="odd">
+<td><code>totpop</code></td>
+<td>Total population (state-level)</td>
+</tr>
+<tr class="even">
+<td><code>ir</code></td>
+<td>Incarcerated males per 100,000</td>
+</tr>
+<tr class="odd">
+<td><code>crack</code></td>
+<td>Crack cocaine index</td>
+</tr>
+<tr class="even">
+<td><code>alcohol</code></td>
+<td>Alcohol consumption per capita</td>
+</tr>
+<tr class="odd">
+<td><code>income</code></td>
+<td>Real income per capita</td>
+</tr>
+<tr class="even">
+<td><code>ur</code></td>
+<td>State unemployment rate</td>
+</tr>
+<tr class="odd">
+<td><code>poverty</code></td>
+<td>Poverty rate</td>
+</tr>
+<tr class="even">
+<td><strong><code>repeal</code></strong></td>
+<td><strong>Treatment</strong>: 1 = early repeal of abortion prohibition, 0 = otherwise</td>
+</tr>
+<tr class="odd">
+<td><strong><code>lnr</code></strong></td>
+<td><strong>Outcome</strong>: log gonorrhea rate per 100,000</td>
+</tr>
+<tr class="even">
+<td><code>pi</code></td>
+<td>Parental involvement law in effect</td>
+</tr>
+<tr class="odd">
+<td><code>bf15</code></td>
+<td>Indicator: black female aged 15–19</td>
+</tr>
+</tbody>
+</table>
+<p>Rows with a missing outcome are dropped. A column that is missing for at least 20% of rows (in this file, <code>fa</code>) is left out of the covariate matrix. Near-zero-variance columns are dropped, matching the causal-tree tutorial.</p>
+<blockquote class="blockquote">
+<p><strong>Causal note:</strong> This is observational panel data. Uplift models estimate conditional contrasts <span class="math inline">\(\hat{\tau}(x)\)</span>. A causal reading still needs an identification argument (for example difference-in-differences or fixed effects).</p>
+</blockquote>
+<div id="tHYaOvnWTOo6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:38.466856Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:38.466162Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:38.530715Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:38.529444Z&quot;}}" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> causaldata <span class="im">import</span> abortion</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>abortion_df <span class="op">=</span> abortion.load_pandas().data.copy()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Abortion dataset loaded. Columns:"</span>, <span class="bu">list</span>(abortion_df.columns))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(abortion.NOTE)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(abortion.DESCRLONG)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(abortion.SOURCE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Abortion dataset loaded. Columns: ['fip', 'age', 'race', 'year', 'sex', 'totpop', 'ir', 'crack', 'alcohol', 'income', 'ur', 'poverty', 'repeal', 'acc', 'wht', 'male', 'lnr', 't', 'younger', 'fa', 'pi', 'bf15']
+::
+    Number of observations - 19584
+    Number of variables - 22
+    Variables name definitions::
+            fip - State FIPS code
+            age - Age in years
+            race - Race: 1 = white, 2 = black
+            year - Year
+            t - Year but on a different scale
+            sex - Sex: 1 = male, 2 = female
+            totpop - Total population
+            ir - Incarcerated Males per 100,000
+            crack - Crack index
+            alcohol - Alcohol consumption per capita
+            income - Real income per capita
+            ur - State unemployment rate
+            poverty - Poverty rate
+            repeal - In a state with an early repeal of abortion prohibition
+            acc - AIDS mortality per 100,000 cumulative in t, t-1, t-2, t-3
+            wht - White Indicator
+            male - Male Indicator
+            lnr - Logged gonnorhea cases per 100,000 in 15-19 year olds
+            younger - From the younger group
+            fa - State-younger interaction
+            pi - Parental involvement law in effect
+            bf15 - Is a black female in the 15-19 age group
+
+This data looks at the effect of abortion legalization on the incidence of gonnorhea among 15-19 year olds, as a measure of risky behavior. Treatment is whether abortion is legalized at the time that the eventual 15-19 year olds are born. This data is used in the Difference-in-Differences chapter of Causal Inference: The Mixtape by Cunningham.
+
+Cunningham, Scott, and Christopher Cornwell. 2013. “The Long-Run Effect of Abortion on Sexually Transmitted Infections.” American Law and Economics Review 15 (1): 381–407.
+</code></pre>
+</div>
+</div>
+</section>
+<section id="load-and-inspect" class="level3">
+<h3 class="anchored" data-anchor-id="load-and-inspect">Load and inspect</h3>
+<div id="HZXS813OTOo6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:38.536097Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:38.535934Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.019067Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.017471Z&quot;}}" data-execution_count="4">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(abortion_df.head())</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(abortion_df[<span class="st">"repeal"</span>].value_counts().sort_index())</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.crosstab(abortion_df[<span class="st">"repeal"</span>], abortion_df[<span class="st">"race"</span>]))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>counts <span class="op">=</span> abortion_df[<span class="st">"repeal"</span>].value_counts().sort_index()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].bar([<span class="st">"No early repeal"</span>, <span class="st">"Early repeal"</span>], counts.to_numpy(), color<span class="op">=</span>[<span class="st">"skyblue"</span>, <span class="st">"tomato"</span>])</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">"Treatment group sizes"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">0</span>].set_ylabel(<span class="st">"State-year observations"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>abortion_df.boxplot(column<span class="op">=</span><span class="st">"lnr"</span>, by<span class="op">=</span><span class="st">"repeal"</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">"Logged gonorrhea rate by repeal"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">0</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"Early repeal"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>abortion_df.boxplot(column<span class="op">=</span><span class="st">"income"</span>, by<span class="op">=</span><span class="st">"repeal"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">0</span>])</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].set_title(<span class="st">"Real income per capita by repeal"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">0</span>].set_xlabel(<span class="st">"Early repeal"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>abortion_df.boxplot(column<span class="op">=</span><span class="st">"alcohol"</span>, by<span class="op">=</span><span class="st">"repeal"</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>, <span class="dv">1</span>])</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">1</span>].set_title(<span class="st">"Alcohol consumption by repeal"</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>axes[<span class="dv">1</span>, <span class="dv">1</span>].set_xlabel(<span class="st">"Early repeal"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>fig.suptitle(<span class="st">"Abortion dataset: treatment, outcome, and covariates"</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   fip age  race  year  sex  totpop          ir     crack  alcohol   income  \
+0    1  30     2  1985    1   78805  371.475800  0.217438      1.9  11566.0   
+1    1  15     1  1985    2  224003   51.389252  0.217438      1.9  11566.0   
+2    1  20     2  1985    2   94113  390.875671  0.217438      1.9  11566.0   
+3    1  20     1  1985    1  252076  100.836800  0.217438      1.9  11566.0   
+4    1  20     2  1985    1   94113  390.875671  0.217438      1.9  11566.0   
+
+   ...  repeal       acc  wht  male       lnr  t  younger   fa  pi  bf15  
+0  ...       0  0.679504    0     1  7.880880  1        0  NaN   0     0  
+1  ...       0  0.679504    1     0  6.362165  1        1  1.0   0     0  
+2  ...       0  0.679504    0     0  8.917793  1        0  NaN   0     0  
+3  ...       0  0.679504    1     1  5.906995  1        0  NaN   0     0  
+4  ...       0  0.679504    0     1  9.072009  1        0  NaN   0     0  
+
+[5 rows x 22 columns]
+repeal
+0    17664
+1     1920
+Name: count, dtype: int64
+race       1     2
+repeal            
+0       8832  8832
+1        960   960</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-5-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="data-processing" class="level3">
+<h3 class="anchored" data-anchor-id="data-processing">Data processing</h3>
+<p>We restrict to the 15–19 age group and drop rows with any missing values, then define covariate matrix <span class="math inline">\(X\)</span>, outcome <span class="math inline">\(Y\)</span>, and treatment <span class="math inline">\(W\)</span>.</p>
+<div id="y1Qe8g6VTOo6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.024942Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.024768Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.045037Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.043727Z&quot;}}" data-execution_count="5">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>missing_rate <span class="op">=</span> abortion_df.isna().mean()</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sparse <span class="op">=</span> missing_rate[missing_rate <span class="op">&gt;=</span> <span class="fl">0.2</span>].index.tolist()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Dropped sparse columns:"</span>, sparse)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>model_df <span class="op">=</span> abortion_df.drop(columns<span class="op">=</span>sparse).dropna().reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> model_df.columns <span class="cf">if</span> c <span class="kw">not</span> <span class="kw">in</span> {<span class="st">"lnr"</span>, <span class="st">"repeal"</span>}]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> model_df[feature_names].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> model_df[<span class="st">"lnr"</span>].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> model_df[<span class="st">"repeal"</span>].to_numpy(dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>keep <span class="op">=</span> np.var(X, axis<span class="op">=</span><span class="dv">0</span>) <span class="op">&gt;</span> <span class="fl">1e-10</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> X[:, keep]</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> [name <span class="cf">for</span> name, flag <span class="kw">in</span> <span class="bu">zip</span>(feature_names, keep) <span class="cf">if</span> flag]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>x_names <span class="op">=</span> feature_names</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Covariates used:"</span>, x_names)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"n ="</span>, <span class="bu">len</span>(Y), <span class="st">" treated ="</span>, <span class="bu">int</span>(W.<span class="bu">sum</span>()))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Dropped sparse columns: ['fa']
+Covariates used: ['fip', 'age', 'race', 'year', 'sex', 'totpop', 'ir', 'crack', 'alcohol', 'income', 'ur', 'poverty', 'acc', 'wht', 'male', 't', 'younger', 'pi', 'bf15']
+n = 17921  treated = 1854</code></pre>
+</div>
+</div>
+</section>
+<section id="train-test-split" class="level3">
+<h3 class="anchored" data-anchor-id="train-test-split">Train / test split</h3>
+<p>We use an 80 / 20 random split (seed fixed for reproducibility).</p>
+<div id="hObnfsjPTOo7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.050215Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.050056Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.059533Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.058282Z&quot;}}" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>rng_abortion <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="bu">len</span>(Y)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>train_idx <span class="op">=</span> rng_abortion.choice(n, size<span class="op">=</span><span class="bu">round</span>(<span class="fl">0.8</span> <span class="op">*</span> n), replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>test_idx <span class="op">=</span> np.setdiff1d(np.arange(n), train_idx)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>X_train, X_test <span class="op">=</span> X[train_idx], X[test_idx]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>Y_train, Y_test <span class="op">=</span> Y[train_idx], Y[test_idx]</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>W_train, W_test <span class="op">=</span> W[train_idx], W[test_idx]</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training rows:"</span>, <span class="bu">len</span>(Y_train))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Test rows:    "</span>, <span class="bu">len</span>(Y_test))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Columns:      "</span>, x_names)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Training rows: 14337
+Test rows:     3584
+Columns:       ['fip', 'age', 'race', 'year', 'sex', 'totpop', 'ir', 'crack', 'alcohol', 'income', 'ur', 'poverty', 'acc', 'wht', 'male', 't', 'younger', 'pi', 'bf15']</code></pre>
+</div>
+</div>
+<p>Outcome by treatment arm:</p>
+<div id="nStuLN9GTOo7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.064768Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.064602Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.078635Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.077068Z&quot;}}" data-execution_count="7">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>arm <span class="op">=</span> pd.DataFrame({<span class="st">"lnr"</span>: Y, <span class="st">"repeal"</span>: W})</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> arm.groupby(<span class="st">"repeal"</span>)[<span class="st">"lnr"</span>].agg(mean<span class="op">=</span><span class="st">"mean"</span>, sd<span class="op">=</span><span class="st">"std"</span>, size<span class="op">=</span><span class="st">"size"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>summary.loc[<span class="st">"All"</span>] <span class="op">=</span> [<span class="bu">float</span>(Y.mean()), <span class="bu">float</span>(Y.std()), <span class="bu">len</span>(Y)]</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(summary.<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>          mean      sd     size
+repeal                         
+0       5.3031  2.1617  16067.0
+1       5.1234  1.8227   1854.0
+All     5.2845  2.1297  17921.0</code></pre>
+</div>
+</div>
+</section>
+<section id="feature-selection-f-filter" class="level3">
+<h3 class="anchored" data-anchor-id="feature-selection-f-filter">Feature selection (F-filter)</h3>
+<p>Following Zhao et al.&nbsp;(2020), each covariate is ranked by the partial F statistic of its interaction with treatment in a linear model of <code>lnr</code>. Order 1 tests <code>lnr ~ x + repeal + x:repeal</code>. Orders 2 and 3 add higher powers of <code>x</code>. Ranking uses the training rows only.</p>
+<p>The likelihood-ratio and KL filters in the uplift literature are for binary outcomes. <code>lnr</code> is continuous, so the F-filter is the matching choice.</p>
+<div id="GaDMIXkwTOo7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.083699Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.083431Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.089751Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.087532Z&quot;}}" data-execution_count="8">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training matrix:"</span>, X_train.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Training matrix: (14337, 19)</code></pre>
+</div>
+</div>
+<div id="yniEmIkwTOo7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.094040Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.093801Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.579989Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.579036Z&quot;}}" data-execution_count="9">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>f_imp_1 <span class="op">=</span> f_filter(X_train, Y_train, W_train, x_names, order<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>f_imp_2 <span class="op">=</span> f_filter(X_train, Y_train, W_train, x_names, order<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>f_imp_3 <span class="op">=</span> f_filter(X_train, Y_train, W_train, x_names, order<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"*** Order 1 ***"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_imp_1.head(<span class="dv">8</span>).<span class="bu">round</span>(<span class="dv">3</span>).to_string(index<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"*** Order 2 ***"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_imp_2.head(<span class="dv">8</span>).<span class="bu">round</span>(<span class="dv">3</span>).to_string(index<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"*** Order 3 ***"</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_imp_3.head(<span class="dv">8</span>).<span class="bu">round</span>(<span class="dv">3</span>).to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>*** Order 1 ***
+feature   score
+ totpop 347.665
+    wht 127.510
+   race 127.510
+alcohol  61.162
+    acc  56.732
+poverty  33.773
+ income  25.682
+      t   6.779
+*** Order 2 ***
+feature   score
+ totpop 249.348
+    wht  64.489
+   race  64.489
+     ir  52.212
+alcohol  31.556
+poverty  22.873
+    acc  19.134
+  crack  16.721
+*** Order 3 ***
+feature   score
+ totpop 114.004
+    wht  40.778
+   race  40.778
+     ir  37.056
+alcohol  25.219
+poverty  17.190
+  crack  15.476
+    acc  15.135</code></pre>
+</div>
+</div>
+<section id="feature-importance-plot" class="level4">
+<h4 class="anchored" data-anchor-id="feature-importance-plot">Feature importance plot</h4>
+<div id="FmWNhDDtTOo8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.582746Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.582314Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.950508Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.949080Z&quot;}}" data-execution_count="10">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>top_bar <span class="op">=</span> f_imp_1.head(<span class="bu">min</span>(<span class="dv">20</span>, <span class="bu">len</span>(f_imp_1))).iloc[::<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">4.5</span>))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>ax.barh(top_bar[<span class="st">"feature"</span>], top_bar[<span class="st">"score"</span>], color<span class="op">=</span><span class="st">"steelblue"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Partial F statistic"</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"F1 filter: feature importance (abortion, train)"</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="define-feature-subsets" class="level4">
+<h4 class="anchored" data-anchor-id="define-feature-subsets">Define feature subsets</h4>
+<div id="a4dDD-2LTOo8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.955290Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.955117Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.961417Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.959858Z&quot;}}" data-execution_count="11">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>ranked_f <span class="op">=</span> f_imp_1[<span class="st">"feature"</span>].tolist()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>top_3_features <span class="op">=</span> ranked_f[: <span class="bu">min</span>(<span class="dv">3</span>, <span class="bu">len</span>(ranked_f))]</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>top_6_features <span class="op">=</span> ranked_f[: <span class="bu">min</span>(<span class="dv">6</span>, <span class="bu">len</span>(ranked_f))]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Top 3 (F1):"</span>, <span class="st">", "</span>.join(top_3_features))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Top 6 (F1):"</span>, <span class="st">", "</span>.join(top_6_features))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Top 3 (F1): totpop, wht, race
+Top 6 (F1): totpop, wht, race, alcohol, acc, poverty</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="comparing-learners-across-feature-subsets" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-learners-across-feature-subsets">Comparing Learners across Feature Subsets</h3>
+<p>We compare <strong>cumulative gain</strong> and <strong>AUUC</strong> (area under the uplift curve, normalised) on the test set for T-, R-, and S-learners fitted on all features, the top-6 subset, and the top-3 subset.</p>
+<div id="RHsqislOTOo8" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.965952Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.965768Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:39.973459Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:39.970910Z&quot;}}" data-execution_count="12">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fit_learner(Learner, feats, <span class="op">**</span>kwargs):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    cols <span class="op">=</span> [x_names.index(name) <span class="cf">for</span> name <span class="kw">in</span> feats]</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> Learner(<span class="op">**</span>kwargs)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    model.fit(X_train[:, cols], W_train, Y_train, feature_names<span class="op">=</span><span class="bu">list</span>(feats))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> model.predict(X_test[:, cols])</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>feature_sets <span class="op">=</span> {</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"All"</span>: x_names,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Top_3"</span>: top_3_features,</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Top_6"</span>: top_6_features,</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="t-learner" class="level3">
+<h3 class="anchored" data-anchor-id="t-learner">T-Learner</h3>
+<div id="oN_AEVaaTOo-" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:39.977984Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:39.977745Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:41.155991Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:41.153980Z&quot;}}" data-execution_count="13">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pred_tl <span class="op">=</span> {</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    name: fit_learner(TLearner, feats, learner<span class="op">=</span><span class="st">"rf"</span>, n_estimators<span class="op">=</span><span class="dv">25</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, feats <span class="kw">in</span> feature_sets.items()</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>pred_tl[<span class="st">"Random"</span>] <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>).random(<span class="bu">len</span>(Y_test))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="xZrtg2B7TOo-" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:41.160607Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:41.160450Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:41.336014Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:41.334607Z&quot;}}" data-execution_count="14">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, auuc_tl <span class="op">=</span> plot_qini_models(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    Y_test, W_test, pred_tl, title<span class="op">=</span><span class="st">"T-learner (random forest): cumulative gain — abortion test set"</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(auuc_tl.<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    model      qini
+0     All   64.6598
+1   Top_3  129.1078
+2   Top_6  125.7647
+3  Random  -11.4375</code></pre>
+</div>
+</div>
+</section>
+<section id="r-learner" class="level3">
+<h3 class="anchored" data-anchor-id="r-learner">R-Learner</h3>
+<div id="VFNQpL8YTOo-" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:41.342527Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:41.342309Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:43.342276Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:43.340442Z&quot;}}" data-execution_count="15">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>pred_rl <span class="op">=</span> {</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    name: fit_learner(RLearner, feats, learner<span class="op">=</span><span class="st">"rf"</span>, n_estimators<span class="op">=</span><span class="dv">15</span>, n_splits<span class="op">=</span><span class="dv">2</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, feats <span class="kw">in</span> feature_sets.items()</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>pred_rl[<span class="st">"Random"</span>] <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>).random(<span class="bu">len</span>(Y_test))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="2JVZb2nETOo-" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:43.348999Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:43.348799Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:43.527937Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:43.526463Z&quot;}}" data-execution_count="16">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fig, auuc_rl <span class="op">=</span> plot_qini_models(</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    Y_test, W_test, pred_rl, title<span class="op">=</span><span class="st">"R-learner: cumulative gain — abortion test set"</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(auuc_rl.<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    model      qini
+0     All   68.5975
+1   Top_3  136.1678
+2   Top_6   58.4407
+3  Random  -11.4375</code></pre>
+</div>
+</div>
+</section>
+<section id="s-learner" class="level3">
+<h3 class="anchored" data-anchor-id="s-learner">S-Learner</h3>
+<div id="q45qQmXQTOo_" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:43.534387Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:43.534199Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:44.643821Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:44.642454Z&quot;}}" data-execution_count="17">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>pred_sl <span class="op">=</span> {</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    name: fit_learner(SLearner, feats, learner<span class="op">=</span><span class="st">"rf"</span>, n_estimators<span class="op">=</span><span class="dv">25</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, feats <span class="kw">in</span> feature_sets.items()</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>pred_sl[<span class="st">"Random"</span>] <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>).random(<span class="bu">len</span>(Y_test))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="UQyT5-x0TOo_" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:44.649365Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:44.649202Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:44.815816Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:44.814347Z&quot;}}" data-execution_count="18">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fig, auuc_sl <span class="op">=</span> plot_qini_models(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    Y_test, W_test, pred_sl, title<span class="op">=</span><span class="st">"S-learner: cumulative gain — abortion test set"</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(auuc_sl.<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    model     qini
+0     All -31.8943
+1   Top_3  59.0114
+2   Top_6  -7.9036
+3  Random -11.4375</code></pre>
+</div>
+</div>
+</section>
+<section id="auuc-summary-table" class="level3">
+<h3 class="anchored" data-anchor-id="auuc-summary-table">AUUC summary table</h3>
+<div id="vfXQGOOxTOo_" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:44.823963Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:44.823807Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:44.832499Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:44.830906Z&quot;}}" data-execution_count="19">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>auuc_tab <span class="op">=</span> pd.concat([</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    auuc_tl.assign(learner<span class="op">=</span><span class="st">"T-learner"</span>),</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    auuc_rl.assign(learner<span class="op">=</span><span class="st">"R-learner"</span>),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    auuc_sl.assign(learner<span class="op">=</span><span class="st">"S-learner"</span>),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>], ignore_index<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(auuc_tab.<span class="bu">round</span>(<span class="dv">4</span>).to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code> model     qini   learner
+   All  64.6598 T-learner
+ Top_3 129.1078 T-learner
+ Top_6 125.7647 T-learner
+Random -11.4375 T-learner
+   All  68.5975 R-learner
+ Top_3 136.1678 R-learner
+ Top_6  58.4407 R-learner
+Random -11.4375 R-learner
+   All -31.8943 S-learner
+ Top_3  59.0114 S-learner
+ Top_6  -7.9036 S-learner
+Random -11.4375 S-learner</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><strong>Reading the table:</strong> Higher AUUC means better uplift ranking. Smaller feature sets can match or beat “all features” when the dropped covariates are noisy — this is the practical payoff of filter-based feature selection.</p>
+</blockquote>
+</section>
+</section>
+<section id="uplift-random-forest" class="level2">
+<h2 class="anchored" data-anchor-id="uplift-random-forest">Uplift random forest</h2>
+<p><code>UpliftRandomForest</code> bags trees that split on treatment-effect heterogeneity. On a continuous outcome the split is the squared difference of child CATEs, the same rule as <code>InteractionTree</code>. <code>TLearner(learner="rf")</code> is the two-forest T-learner: one random forest per arm, and CATE equals the difference of predicted means.</p>
+<section id="t-learner-forest" class="level3">
+<h3 class="anchored" data-anchor-id="t-learner-forest">T-learner forest</h3>
+<div id="3nvFtHToTOpA" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:44.837977Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:44.837672Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:45.995674Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:45.994140Z&quot;}}" data-execution_count="20">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>uplift_model <span class="op">=</span> TLearner(learner<span class="op">=</span><span class="st">"rf"</span>, n_estimators<span class="op">=</span><span class="dv">40</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>uplift_model.fit(X_train, W_train, Y_train, feature_names<span class="op">=</span>x_names)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>pred_tr <span class="op">=</span> uplift_model.predict(X_train)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>pred_te <span class="op">=</span> uplift_model.predict(X_test)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mean predicted CATE — train:"</span>, <span class="bu">round</span>(<span class="bu">float</span>(pred_tr.mean()), <span class="dv">4</span>),</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"| test:"</span>, <span class="bu">round</span>(<span class="bu">float</span>(pred_te.mean()), <span class="dv">4</span>),</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean predicted CATE — train: -0.1332 | test: -0.1184</code></pre>
+</div>
+</div>
+<p>The <code>full_output = TRUE</code> argument returns the control arm prediction, treatment arm prediction, and CATE (delta) for each unit — useful for auditing and downstream analysis.</p>
+<div id="HSITZQNmTOpA" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:46.001626Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:46.001433Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:46.032247Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:46.031040Z&quot;}}" data-execution_count="21">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>pred_full <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"control"</span>: uplift_model.mu0_.predict(X_test),</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"treated"</span>: uplift_model.mu1_.predict(X_test),</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cate"</span>: pred_te,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>pred_full.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">control</th>
+<th data-quarto-table-cell-role="th">treated</th>
+<th data-quarto-table-cell-role="th">cate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>5.405646</td>
+<td>4.669976</td>
+<td>-0.735670</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>5.742501</td>
+<td>5.758414</td>
+<td>0.015913</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>5.389370</td>
+<td>4.651757</td>
+<td>-0.737613</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>8.248191</td>
+<td>7.670827</td>
+<td>-0.577364</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>3.914643</td>
+<td>4.237091</td>
+<td>0.322448</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="uplift-forest-treatment-effect-splits" class="level3">
+<h3 class="anchored" data-anchor-id="uplift-forest-treatment-effect-splits">Uplift forest (treatment-effect splits)</h3>
+<p><code>UpliftRandomForest</code> averages leaf contrasts from trees that split to separate treatment effects, rather than fitting two outcome models.</p>
+<div id="H8Vk1ZgOTOpA" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:46.037514Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:46.037350Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:49.947156Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:49.945599Z&quot;}}" data-execution_count="22">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>uplift_it_rf <span class="op">=</span> UpliftRandomForest(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    criterion<span class="op">=</span><span class="st">"ed"</span>, n_trees<span class="op">=</span><span class="dv">12</span>, max_depth<span class="op">=</span><span class="dv">4</span>, min_samples_leaf<span class="op">=</span><span class="dv">60</span>, random_state<span class="op">=</span><span class="dv">111</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>uplift_it_rf.fit(X_train, W_train, Y_train, feature_names<span class="op">=</span>x_names)</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>pred_it_te <span class="op">=</span> uplift_it_rf.predict(X_test)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Uplift forest — mean predicted CATE (test):"</span>, <span class="bu">round</span>(<span class="bu">float</span>(pred_it_te.mean()), <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Uplift forest — mean predicted CATE (test): -0.0726</code></pre>
+</div>
+</div>
+<p>Model summaries:</p>
+<div id="lvHs2KSSTOpB" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:49.952707Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:49.952525Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:49.969821Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:49.968280Z&quot;}}" data-execution_count="23">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"T-learner importances:"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.Series(</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.5</span> <span class="op">*</span> (uplift_model.mu0_.feature_importances_ <span class="op">+</span> uplift_model.mu1_.feature_importances_),</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span>x_names,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>).sort_values(ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">4</span>).head(<span class="dv">8</span>))</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Uplift-forest importances:"</span>)</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.Series(uplift_it_rf.feature_importance(), index<span class="op">=</span>x_names).sort_values(ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">4</span>).head(<span class="dv">8</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>T-learner importances:
+wht        0.3722
+race       0.3411
+age        0.1569
+income     0.0285
+alcohol    0.0236
+sex        0.0175
+male       0.0158
+year       0.0116
+dtype: float64
+Uplift-forest importances:
+totpop     0.3897
+ir         0.1909
+fip        0.1742
+alcohol    0.0805
+poverty    0.0749
+acc        0.0185
+ur         0.0181
+race       0.0161
+dtype: float64</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="evaluation">Evaluation</h2>
+<section id="gain-curve-on-the-test-set" class="level3">
+<h3 class="anchored" data-anchor-id="gain-curve-on-the-test-set">Gain curve on the test set</h3>
+<p>The <strong>cumulative gain curve</strong> plots, as we move through units in descending order of predicted CATE, how much <em>actual</em> treatment benefit we capture relative to random assignment. A curve bowing above the diagonal indicates useful uplift ranking.</p>
+<div id="FlWlLhtXTOpB" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:49.974639Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:49.974504Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:49.984097Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:49.982791Z&quot;}}" data-execution_count="24">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>df_gain <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"is_treated"</span>: W_test,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"outcome"</span>: Y_test,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"uplift_model"</span>: pred_te,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>df_gain.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">is_treated</th>
+<th data-quarto-table-cell-role="th">outcome</th>
+<th data-quarto-table-cell-role="th">uplift_model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0</td>
+<td>6.362165</td>
+<td>-0.735670</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>0</td>
+<td>6.135781</td>
+<td>0.015913</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>0</td>
+<td>5.544787</td>
+<td>-0.737613</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>0</td>
+<td>8.268040</td>
+<td>-0.577364</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>0</td>
+<td>4.560173</td>
+<td>0.322448</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="BKGLXtQeTOpB" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:49.988774Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:49.988527Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:50.142104Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:50.140504Z&quot;}}" data-execution_count="25">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>plot_uplift_curve(Y_test, W_test, pred_te, title<span class="op">=</span><span class="st">"T-learner forest — abortion test set"</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Qini coefficient:"</span>, <span class="bu">round</span>(qini_coefficient(Y_test, W_test, pred_te), <span class="dv">4</span>))</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Qini coefficient: 62.6804</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-26-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="distribution-of-predicted-cate" class="level4">
+<h4 class="anchored" data-anchor-id="distribution-of-predicted-cate">Distribution of predicted CATE</h4>
+<p>Fitting on the <strong>full dataset</strong> gives a picture of how heterogeneous the treatment effect is across all observed covariate profiles.</p>
+<div id="ftvp_v2VTOpC" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:50.147217Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:50.147072Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:51.138126Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:51.136473Z&quot;}}" data-execution_count="26">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>uf_full <span class="op">=</span> TLearner(learner<span class="op">=</span><span class="st">"rf"</span>, n_estimators<span class="op">=</span><span class="dv">30</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>uf_full.fit(X, W, Y, feature_names<span class="op">=</span>x_names)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>pred_cate_full <span class="op">=</span> uf_full.predict(X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="mSpqPGotTOpC" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:51.143309Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:51.143151Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:51.312714Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:51.311241Z&quot;}}" data-execution_count="27">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.6</span>, <span class="dv">4</span>))</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>ax.hist(pred_cate_full, bins<span class="op">=</span><span class="dv">30</span>, color<span class="op">=</span><span class="st">"steelblue"</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>ax.axvline(pred_cate_full.mean(), color<span class="op">=</span><span class="st">"red"</span>, ls<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Predicted treatment effect (lnr scale)"</span>)</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"T-learner forest: distribution of predicted CATE"</span>)</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>ax.legend([<span class="ss">f"Mean CATE = </span><span class="sc">{</span>pred_cate_full<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss">"</span>], frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="variable-importance" class="level3">
+<h3 class="anchored" data-anchor-id="variable-importance">Variable importance</h3>
+<p>For the T-learner, average the impurity importance of the control forest and the treated forest. The uplift forest reports split-gain importance from <code>feature_importance</code>. Individual uplift trees are drawn from <code>uplift_it_rf.trees_</code>.</p>
+<div id="0mSOzLP5TOpC" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:51.318159Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:51.318020Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:51.668031Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:51.666024Z&quot;}}" data-execution_count="28">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>imp_avg <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> (</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    np.asarray(uplift_model.mu0_.feature_importances_)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> np.asarray(uplift_model.mu1_.feature_importances_)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.Series(imp_avg, index<span class="op">=</span>x_names).sort_values(ascending<span class="op">=</span><span class="va">False</span>).<span class="bu">round</span>(<span class="dv">4</span>).head(<span class="dv">8</span>))</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>plot_uplift_tree(uplift_it_rf.trees_[<span class="dv">0</span>], title<span class="op">=</span><span class="st">"First tree in the uplift forest"</span>)</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>wht        0.3722
+race       0.3411
+age        0.1569
+income     0.0285
+alcohol    0.0236
+sex        0.0175
+male       0.0158
+year       0.0116
+dtype: float64</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-29-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="interpretable-single-tree-models" class="level2">
+<h2 class="anchored" data-anchor-id="interpretable-single-tree-models">Interpretable Single-Tree Models</h2>
+<p>Forests are powerful but opaque. A single <strong>interaction tree</strong> or <strong>causal inference tree</strong> summarises the learned heterogeneity in human-readable split rules, useful for communicating findings to non-technical stakeholders.</p>
+<section id="interaction-tree-it" class="level3">
+<h3 class="anchored" data-anchor-id="interaction-tree-it">Interaction tree (IT)</h3>
+<div id="tOgaMekLTOpC" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:51.674824Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:51.674671Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:51.900127Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:51.898422Z&quot;}}" data-execution_count="29">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>it_fit <span class="op">=</span> InteractionTree(max_depth<span class="op">=</span><span class="dv">3</span>, min_samples_leaf<span class="op">=</span><span class="dv">80</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>it_fit.fit(X_train, W_train, Y_train, feature_names<span class="op">=</span>x_names)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(format_uplift_tree(it_fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[alcohol &lt;= 2.150]  gain=3348.7738  tau=-0.119  n=14337
+  [poverty &lt;= 13.700]  gain=865.0966  tau=-0.965  n=5045
+    [wht &lt;= 0.000]  gain=500.3254  tau=-0.367  n=2574
+      * leaf  tau=-0.836  n=1268
+      * leaf  tau=0.046  n=1306
+    [ir &lt;= 139.480]  gain=465.2184  tau=-1.195  n=2471
+      * leaf  tau=-1.442  n=866
+      * leaf  tau=-0.533  n=1605
+  [totpop &lt;= 36115.000]  gain=3088.1481  tau=0.047  n=9292
+    [fip &lt;= 33.000]  gain=2099.1684  tau=-0.947  n=3253
+      * leaf  tau=-1.354  n=2185
+      * leaf  tau=0.357  n=1068
+    [alcohol &lt;= 2.720]  gain=1450.1082  tau=0.262  n=6039
+      * leaf  tau=-0.076  n=4871
+      * leaf  tau=1.165  n=1168</code></pre>
+</div>
+</div>
+<p>Leaf labels show <span class="math inline">\(\hat{\tau} \approx \mathbb{E}[Y \mid T=1] - \mathbb{E}[Y \mid T=0]\)</span> within each region.</p>
+<div id="xZabiqFWTOpD" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:51.905414Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:51.905262Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:52.080968Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:52.079703Z&quot;}}" data-execution_count="30">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>plot_uplift_tree(it_fit, title<span class="op">=</span><span class="st">"Interaction tree — lnr vs repeal (abortion data, train)"</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-31-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="causal-inference-tree-cit" class="level3">
+<h3 class="anchored" data-anchor-id="causal-inference-tree-cit">Causal inference tree (CIT)</h3>
+<div id="xoZ1AXzBTOpD" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:52.086311Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:52.086165Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:52.395039Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:52.393307Z&quot;}}" data-execution_count="31">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>cit_fit <span class="op">=</span> CausalTree(max_depth<span class="op">=</span><span class="dv">3</span>, min_samples_leaf<span class="op">=</span><span class="dv">80</span>, honest<span class="op">=</span><span class="va">True</span>, random_state<span class="op">=</span><span class="dv">111</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>cit_fit.fit(X_train, W_train, Y_train, feature_names<span class="op">=</span>x_names)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.DataFrame(cit_fit.rules()).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>plot_causal_tree(cit_fit, title<span class="op">=</span><span class="st">"Honest causal tree — abortion data (train)"</span>)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    cate     n                                         conditions
+0  1.406   797                     acc &lt;= 5.919 AND race &lt;= 1.000
+1 -0.649   172  acc &lt;= 5.919 AND race &gt; 1.000 AND year &lt;= 1985...
+2 -0.571   402  acc &lt;= 5.919 AND race &gt; 1.000 AND year &gt; 1985.000
+3 -1.108  1904  acc &gt; 5.919 AND totpop &lt;= 132551.040 AND fip &lt;...
+4  0.916  1366  acc &gt; 5.919 AND totpop &lt;= 132551.040 AND fip &gt;...
+5  1.878  1398  acc &gt; 5.919 AND totpop &gt; 132551.040 AND totpop...
+6 -0.207  1129  acc &gt; 5.919 AND totpop &gt; 132551.040 AND totpop...</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-32-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="explaining-predicted-cate" class="level2">
+<h2 class="anchored" data-anchor-id="explaining-predicted-cate">Explaining predicted CATE</h2>
+<p><code>explain</code> decomposes predicted CATE into covariate contributions. A positive value means that feature pushes the predicted treatment effect up. The explanation is about <span class="math inline">\(\hat{\tau}(X)\)</span>, not the raw outcome. The call below uses a subset of the training rows.</p>
+<div id="mF77E1q8TOpD" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:52.400370Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:52.400148Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:52.988872Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:52.987594Z&quot;}}" data-execution_count="32">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> uplift_model.explain(X_train, max_samples<span class="op">=</span><span class="dv">24</span>, n_permutations<span class="op">=</span><span class="dv">4</span>, random_state<span class="op">=</span><span class="dv">2026</span>)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"SHAP array shape:"</span>, sv.values.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SHAP array shape: (24, 19)</code></pre>
+</div>
+</div>
+<section id="global-feature-importance" class="level3">
+<h3 class="anchored" data-anchor-id="global-feature-importance">Global feature importance</h3>
+<div id="1F-JVAaLTOpE" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:52.994454Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:52.994272Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:53.149116Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:53.147682Z&quot;}}" data-execution_count="33">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>sv.plot_importance(title<span class="op">=</span><span class="st">"SHAP importance for predicted CATE"</span>)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-34-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="dependence-plots" class="level3">
+<h3 class="anchored" data-anchor-id="dependence-plots">Dependence plots</h3>
+<p>These show how a feature’s SHAP value changes as the feature value changes — revealing the shape of the heterogeneity.</p>
+<div id="guT2IdIFTOpE" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:53.153920Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:53.153777Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:53.620995Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:53.619225Z&quot;}}" data-execution_count="34">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> np.argsort(sv.importance())[::<span class="op">-</span><span class="dv">1</span>][:<span class="dv">4</span>]</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> feature <span class="kw">in</span> np.asarray(x_names)[order]:</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>    sv.plot_dependence(feature)</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-35-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-35-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-35-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-35-output-4.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Interaction between the top two features:</p>
+<div id="DuK1cY9yTOpE" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:53.625734Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:53.625384Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:53.791176Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:53.790085Z&quot;}}" data-execution_count="35">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(order) <span class="op">&gt;=</span> <span class="dv">2</span>:</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    j, k <span class="op">=</span> <span class="bu">int</span>(order[<span class="dv">1</span>]), <span class="bu">int</span>(order[<span class="dv">0</span>])</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.6</span>, <span class="dv">4</span>))</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>    points <span class="op">=</span> ax.scatter(sv.data[:, j], sv.values[:, j], c<span class="op">=</span>sv.data[:, k], cmap<span class="op">=</span><span class="st">"viridis"</span>, s<span class="op">=</span><span class="dv">28</span>)</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    fig.colorbar(points, ax<span class="op">=</span>ax, label<span class="op">=</span>x_names[k])</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#888888"</span>, lw<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(x_names[j])</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="st">"SHAP value"</span>)</span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"</span><span class="sc">{</span>x_names[j]<span class="sc">}</span><span class="ss"> colored by </span><span class="sc">{</span>x_names[k]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>    fig.tight_layout()</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-36-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="waterfall-plot-highest-uplift-unit" class="level3">
+<h3 class="anchored" data-anchor-id="waterfall-plot-highest-uplift-unit">Waterfall plot: highest-uplift unit</h3>
+<p>A waterfall plot decomposes one unit’s predicted CATE into covariate contributions, starting from the baseline (mean prediction across background) and adding or subtracting each feature’s SHAP value.</p>
+<div id="7_-zMZMqTOpF" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:53.796137Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:53.795977Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:53.985696Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:53.984699Z&quot;}}" data-execution_count="36">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>row_id <span class="op">=</span> <span class="bu">int</span>(np.argmax(sv.predictions))</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Highest predicted CATE in the explain set:"</span>, <span class="bu">round</span>(<span class="bu">float</span>(sv.predictions[row_id]), <span class="dv">4</span>))</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>sv.plot_waterfall(row_id, title<span class="op">=</span><span class="st">"SHAP waterfall — highest estimated CATE"</span>)</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Highest predicted CATE in the explain set: 0.6571</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-37-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="shap-on-the-test-set" class="level3">
+<h3 class="anchored" data-anchor-id="shap-on-the-test-set">SHAP on the test set</h3>
+<div id="6fOBEsOfTOpF" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T14:28:53.991137Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T14:28:53.990994Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T14:28:54.709366Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T14:28:54.708029Z&quot;}}" data-execution_count="37">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>sv_test <span class="op">=</span> uplift_model.explain(X_test[:<span class="dv">10</span>], max_samples<span class="op">=</span><span class="dv">10</span>, n_permutations<span class="op">=</span><span class="dv">4</span>, random_state<span class="op">=</span><span class="dv">2026</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>sv_test.plot_importance(title<span class="op">=</span><span class="st">"SHAP importance on 10 test rows"</span>)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_03_03_uplift_randomForest_files/figure-html/cell-38-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>This tutorial walks through uplift regression on the abortion dataset with PyCausalML.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 68%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>What we did</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Data</strong></td>
+<td>Loaded <code>abortion</code> from <code>causaldata</code>, as in the causal-tree tutorial. Outcome <code>lnr</code>, treatment <code>repeal</code></td>
+</tr>
+<tr class="even">
+<td><strong>Feature selection</strong></td>
+<td>F-filter on the training rows; compared top-3, top-6, and all features</td>
+</tr>
+<tr class="odd">
+<td><strong>Learner comparison</strong></td>
+<td>T-, R-, and S-learners scored by the Qini coefficient on the test set</td>
+</tr>
+<tr class="even">
+<td><strong>Uplift forest</strong></td>
+<td><code>TLearner</code> random forests and <code>UpliftRandomForest</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Evaluation</strong></td>
+<td>Qini curves, CATE distribution, feature importance</td>
+</tr>
+<tr class="even">
+<td><strong>Single trees</strong></td>
+<td><code>InteractionTree</code> and honest <code>CausalTree</code></td>
+</tr>
+<tr class="odd">
+<td><strong>SHAP</strong></td>
+<td><code>explain</code> — importance, dependence, and a waterfall plot</td>
+</tr>
+</tbody>
+</table>
+<section id="key-reminders" class="level3">
+<h3 class="anchored" data-anchor-id="key-reminders">Key reminders</h3>
+<ul>
+<li><strong>Scale of CATE:</strong> predictions are on the <code>lnr</code> scale. A CATE of <span class="math inline">\(-0.10\)</span> is 0.10 fewer log-points of gonorrhea rate.</li>
+<li><strong>Observational data:</strong> the forest estimates conditional contrasts. Identification is a separate argument.</li>
+<li><strong>T-learner vs uplift forest:</strong> <code>TLearner(learner="rf")</code> fits two outcome forests. <code>UpliftRandomForest</code> splits on treatment-effect heterogeneity and keeps the individual trees.</li>
+</ul>
+</section>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<ul>
+<li><a href="https://causalml.readthedocs.io/en/latest/examples/uplift_trees_with_synthetic_data.html">Uplift Trees Example — Python CausalML docs</a></li>
+<li><a href="https://causalml.readthedocs.io/en/latest/examples/feature_selection.html">Feature Selection for Uplift Modelling — Python CausalML docs</a></li>
+<li>Zhao, Z., Feng, T., Garg, V., &amp; Cakmak, M. (2020). <a href="https://arxiv.org/abs/2005.03447">Feature Selection Methods for Uplift Modeling</a>. <em>arXiv</em>.</li>
+<li>Gutierrez, P., &amp; Gérardy, J.-Y. (2017). <a href="http://proceedings.mlr.press/v67/gutierrez17a/gutierrez17a.pdf">Causal inference and uplift modelling: A review of the literature</a>. <em>PMLR</em>.</li>
+<li>Breiman, L. (2001). Random Forests. <em>Machine Learning</em>, 45, 5–32.</li>
+</ul>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/zia207\.github\.io\/PyCausalML\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.html" class="pagination-link" aria-label="Uplift Tree: Regression">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Uplift Tree: Regression</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.html" class="pagination-link" aria-label="Uplift XGBoost">
+        <span class="nav-page-text">Uplift XGBoost</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© CC-By Zia Ahmed, Upatta Analytics, 2026</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

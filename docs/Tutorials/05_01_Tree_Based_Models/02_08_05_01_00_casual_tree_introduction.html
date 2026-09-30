@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>casual_tree_introduction – PyCausalML</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.html" rel="next">
+<link href="../../Tutorials/02_08_05_00_casual_ml_introduction.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f1aadacce99040138bbb613f9330654f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c3ddef8e9936373b1ee063945a43a984.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<style>
+.navbar-logo img { max-height: 42px; width: auto; }
+#quarto-sidebar .sidebar-logo img { max-width: 168px; height: auto; }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="index.qmd" class="navbar-brand navbar-brand-logo">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo light-content">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="index.qmd">
+    <span class="navbar-title">PyCausalML</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/02_08_05_00_casual_ml_introduction.html"> 
+<span class="menu-text">Tutorial</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/00-scientific-terminology-glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://sites.google.com/view/r-data-sci-env/home"> <i class="bi bi-house" role="img" aria-label="Upatta Analytics">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/zia207/PyCausalML"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/zia-ahmed207"> <i class="bi bi-linkedin" role="img" aria-label="LinkedIn">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:zia207@gmail.com"> <i class="bi bi-envelope" role="img" aria-label="Email">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html"><strong>Tree-Based Models</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html">Introduction to Tree-Based Models</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html"><strong>Tree-Based Models</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html">Introduction to Tree-Based Models</a></li></ol></nav></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="index.qmd" class="sidebar-logo-link">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Package Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/02_08_05_00_casual_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Tree-Based Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Introduction to Tree-Based Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_02_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_03_causal_survival_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Survival Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multi-Arm Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal XGBoost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted IV Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted Multi-Arm Causal Model</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Meta-Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_00_meta_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Meta-Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_01_meta_learners_binary_treatments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binary Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_02_meta_learners_multiple_discrete_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Discrete Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_03_meta_learners_continuous_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_04_tmle_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Targeted Maximum Likelihood Estimation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_05_meta_learners_domain_adaptation_learner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Domain Adaptation Learner</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_06_meta_learners_doubly_robust_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Uplift Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Uplift Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_01_uplift_trees_classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Classification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Random Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift XGBoost</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Double Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_00_double_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_01_double_ml_from_basics_to_application.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bias and Orthogonalization</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_02_double_ml_single_multiple_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single and Multiple Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_03_double_ml_did.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_04_double_ml_iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_05_double_ml_dynamic_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dynamic Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_06_double_ml_weighted_double_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weighted Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_07_double_ml_cluster_robust.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cluster-Robust Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_08_double_ml_ensemble_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ensemble Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Deep Causal Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_00_DeepCausalML_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Deep Causal Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Treatment Effect Estimators</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_00_DeepCausalML_treatment_effect_estimators_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Treatment Effect Estimators</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_01_DeepCausalML_TARNET.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">TARNet: Treatment-Agnostic Representation Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_02_DeepCausalML_CFRNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CFRNet: Counterfactual Regression Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_03_DeepCausalML_DragonNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DragonNet: Propensity-Adjusted Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_04_DeepCausalML_GANITE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GANITE: Generative Adversarial Treatment Effects</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_05_DeepCausalML_NeuralDML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NeuralDML: Neural Double Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Generative Latent-Variable Causal Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_00_DeepCausalML_GLVCM_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to GLVCMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_01_DeepCausalML_CausalVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalVAE: Causal Variational Autoencoder</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_02_DeepCausalML_iVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">iVAE: Identifiable Variational Autoencoders</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_03_DeepCausalML_CausalDiscrepancyVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalDiscrepancyVAE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_04_DeepCausalML_CausalGAN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalGAN: Causal Generative Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_05_DeepCausalML_DSCM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Deep Structural Causal Models (DSCMs)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_06_DeepCausalML_CausalEGM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalEGM: Causal Encoding Generative Modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Structural Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_00_DeepCausalML_structural_learning_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Structural Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_01_DeepCausalML_NOTEARS.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NOTEARS: Continuous Optimization Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_02_DeepCausalML_DagGNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAG-GNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_03_DeepCausalML_GranDag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GraN-DAG</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_04_DeepCausalML_DAGMA_NoCurl.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAGMA and DAG-NoCurl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_05_DeepCausalML_CASTLE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CASTLE: Causal Structure Learning Regularization</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Temporal Deep Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_00_DeepCausalML_timeseries_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Temporal Deep Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_01_DeepCausalML_timeseries_neural_granger_causality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Neural Granger Causality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_02_DeepCausalML_timeseries_structural_causal_model_SMC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structural Causal Models with Deep Components</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_03_DeepCausalML_attention_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Attention and Transformer Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_04_DeepCausalML_timeseries_RNN_LSTM_causalML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">RNN and LSTM Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_05_DeepCausalML_timeseries_graphNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graph Neural Network Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_06_DeepCausalML_timeseries_counterfactual_potential.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counterfactual and Potential Outcomes Models</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Bayesian Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_00_bayesian_causal_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Bayesian Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_01_bayesian_causal_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Causal Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_02_graphs_and_bayesian_networks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graphs and Bayesian Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_03_bayesian_structural_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Structural Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_04_bayesian_quasi_experiments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experiments</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Policy Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_00_policy_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Policy Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_01_doubleml_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_02_econml_dr_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_03_econml_policy_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Forest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Quasi-Experiments</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_00_quasi_experiments_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Quasi-Experiments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_01_difference_in_differences.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_02_synthetic_control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Synthetic Control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_03_regression_discontinuity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression Discontinuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_04_instrumental_variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_05_bayesian_causal_inference_quasi_experimental.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experimental Inference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Terminology</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/00-scientific-terminology-glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A–Z glossary of causal inference and machine learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On This Page</h2>
+   
+  <ul>
+  <li><a href="#tree-based-models-for-causal-inference" id="toc-tree-based-models-for-causal-inference" class="nav-link active" data-scroll-target="#tree-based-models-for-causal-inference">1. Tree-Based Models for Causal Inference</a>
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#scientific-terminology" id="toc-scientific-terminology" class="nav-link" data-scroll-target="#scientific-terminology">Scientific Terminology</a></li>
+  <li><a href="#limitations-of-traditional-approaches-to-heterogeneity" id="toc-limitations-of-traditional-approaches-to-heterogeneity" class="nav-link" data-scroll-target="#limitations-of-traditional-approaches-to-heterogeneity">Limitations of Traditional Approaches to Heterogeneity</a></li>
+  <li><a href="#core-innovations-of-tree-based-causal-methods" id="toc-core-innovations-of-tree-based-causal-methods" class="nav-link" data-scroll-target="#core-innovations-of-tree-based-causal-methods">Core Innovations of Tree-Based Causal Methods</a>
+  <ul class="collapse">
+  <li><a href="#causal-splitting-criterion" id="toc-causal-splitting-criterion" class="nav-link" data-scroll-target="#causal-splitting-criterion">Causal Splitting Criterion</a></li>
+  <li><a href="#honest-estimation" id="toc-honest-estimation" class="nav-link" data-scroll-target="#honest-estimation">Honest Estimation</a></li>
+  <li><a href="#causal-cross-validation-and-pruning" id="toc-causal-cross-validation-and-pruning" class="nav-link" data-scroll-target="#causal-cross-validation-and-pruning">Causal Cross-Validation and Pruning</a></li>
+  </ul></li>
+  <li><a href="#applications-across-domains" id="toc-applications-across-domains" class="nav-link" data-scroll-target="#applications-across-domains">Applications Across Domains</a></li>
+  <li><a href="#methodological-landscape-from-trees-to-forests" id="toc-methodological-landscape-from-trees-to-forests" class="nav-link" data-scroll-target="#methodological-landscape-from-trees-to-forests">Methodological Landscape: From Trees to Forests</a></li>
+  <li><a href="#causal-tree" id="toc-causal-tree" class="nav-link" data-scroll-target="#causal-tree">Causal Tree</a>
+  <ul class="collapse">
+  <li><a href="#the-problem-why-averages-lie" id="toc-the-problem-why-averages-lie" class="nav-link" data-scroll-target="#the-problem-why-averages-lie">The Problem: Why Averages Lie</a></li>
+  <li><a href="#causal-tree-vs.-standard-decision-tree" id="toc-causal-tree-vs.-standard-decision-tree" class="nav-link" data-scroll-target="#causal-tree-vs.-standard-decision-tree">Causal Tree vs.&nbsp;Standard Decision Tree</a></li>
+  <li><a href="#the-splitting-criterion" id="toc-the-splitting-criterion" class="nav-link" data-scroll-target="#the-splitting-criterion">The Splitting Criterion</a></li>
+  <li><a href="#how-it-works-step-by-step" id="toc-how-it-works-step-by-step" class="nav-link" data-scroll-target="#how-it-works-step-by-step">How It Works (Step-by-Step)</a></li>
+  <li><a href="#key-assumptions" id="toc-key-assumptions" class="nav-link" data-scroll-target="#key-assumptions">Key Assumptions</a></li>
+  </ul></li>
+  <li><a href="#causal-forests" id="toc-causal-forests" class="nav-link" data-scroll-target="#causal-forests">Causal Forests</a>
+  <ul class="collapse">
+  <li><a href="#how-causal-forest-works" id="toc-how-causal-forest-works" class="nav-link" data-scroll-target="#how-causal-forest-works">How Causal Forest Works</a></li>
+  <li><a href="#the-mathematical-framework" id="toc-the-mathematical-framework" class="nav-link" data-scroll-target="#the-mathematical-framework">The Mathematical Framework</a></li>
+  </ul></li>
+  <li><a href="#types-of-causal-forests" id="toc-types-of-causal-forests" class="nav-link" data-scroll-target="#types-of-causal-forests">Types of Causal Forests</a>
+  <ul class="collapse">
+  <li><a href="#standard-causal-forest-binarysingle" id="toc-standard-causal-forest-binarysingle" class="nav-link" data-scroll-target="#standard-causal-forest-binarysingle">Standard Causal Forest (Binary/Single)</a></li>
+  <li><a href="#multi-arm-causal-forest" id="toc-multi-arm-causal-forest" class="nav-link" data-scroll-target="#multi-arm-causal-forest">Multi-Arm Causal Forest</a></li>
+  <li><a href="#multi-outcome-causal-forest" id="toc-multi-outcome-causal-forest" class="nav-link" data-scroll-target="#multi-outcome-causal-forest">Multi-Outcome Causal Forest</a></li>
+  <li><a href="#causal-survival-forest-time-to-event" id="toc-causal-survival-forest-time-to-event" class="nav-link" data-scroll-target="#causal-survival-forest-time-to-event">Causal Survival Forest (Time-to-Event)</a></li>
+  <li><a href="#combined-multi-arm-multi-outcome-survival" id="toc-combined-multi-arm-multi-outcome-survival" class="nav-link" data-scroll-target="#combined-multi-arm-multi-outcome-survival">Combined (Multi-Arm + Multi-Outcome + Survival)</a></li>
+  <li><a href="#key-differences-among-causal-forest-types" id="toc-key-differences-among-causal-forest-types" class="nav-link" data-scroll-target="#key-differences-among-causal-forest-types">Key Differences Among Causal Forest Types</a></li>
+  </ul></li>
+  <li><a href="#summary-and-conclusions" id="toc-summary-and-conclusions" class="nav-link" data-scroll-target="#summary-and-conclusions">Summary and Conclusions</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Image/05_01_tree_based_models.png" class="img-fluid figure-img"></p>
+<figcaption>Python Banner</figcaption>
+</figure>
+</div>
+<section id="tree-based-models-for-causal-inference" class="level1">
+<h1>1. Tree-Based Models for Causal Inference</h1>
+<p>Tree-based methods for causal inference have emerged as powerful tools for estimating heterogeneous treatment effects in complex, high-dimensional settings. By leveraging the flexibility and interpretability of decision trees, these methods allow researchers to uncover nuanced patterns of effect heterogeneity that traditional parametric models often miss. This section provides an introduction to the core concepts, innovations, and applications of tree-based causal inference, with a focus on the seminal Causal Tree algorithm and its extensions to Causal Forests and survival analysis.</p>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>This chapter uses <strong><a href="https://github.com/zia207/PyCausalML">PyCausalML</a></strong>. <code>from pycausalml import ...</code> loads the tree and forest estimators in <code>pycausalml.tree_based_models</code>: honest causal trees, doubly robust forests, survival and instrumental forests, and the boosted multi-arm and IV models.</p>
+<p><code>fit(X, treatment, y)</code> returns the fitted estimator. <code>predict</code> returns a NumPy array of conditional average treatment effects.</p>
+<p>Install the package from this repository, with the plotting and boosting extras used in the notebooks that follow.</p>
+<div id="dbaf64cf" class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _repo_root() <span class="op">-&gt;</span> Path:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    here <span class="op">=</span> Path.cwd().resolve()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cand <span class="kw">in</span> [here, <span class="op">*</span>here.parents]:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (cand <span class="op">/</span> <span class="st">"pyproject.toml"</span>).is_file() <span class="kw">and</span> (cand <span class="op">/</span> <span class="st">"src"</span> <span class="op">/</span> <span class="st">"pycausalml"</span>).is_dir():</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> cand</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"PyCausalML repository was not found. Run this notebook from the repository."</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> _repo_root()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>subprocess.check_call([</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sys.executable, <span class="st">"-m"</span>, <span class="st">"pip"</span>, <span class="st">"install"</span>, <span class="st">"-q"</span>, <span class="st">"-e"</span>, <span class="ss">f"</span><span class="sc">{</span>root<span class="sc">}</span><span class="ss">[plot,boost,shap]"</span>, <span class="st">"statsmodels"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyCausalML ready."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="3108ba8f" class="cell">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pycausalml</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pycausalml <span class="im">import</span> (</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    BoostedIVForest,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    CausalForest,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    CausalSurvivalForest,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    CausalTree,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    CXGBoost,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    InstrumentalForest,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    MultiArmCausalBoost,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    MultiArmCausalForest,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.dpi"</span>] <span class="op">=</span> <span class="dv">110</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyCausalML"</span>, pycausalml.__version__)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>Causal inference—the scientific endeavor of estimating the effect of an intervention, exposure, or treatment on an outcome of interest—lies at the heart of evidence-based decision-making in medicine, public policy, economics, and environmental science. While classical methods such as randomized controlled trials (RCTs), regression adjustment, propensity score matching, and inverse probability weighting provide robust estimates of <em>average</em> treatment effects (ATE), they often obscure a critical dimension of real-world phenomena: <strong>treatment effect heterogeneity</strong>.</p>
+<p>In practice, interventions rarely affect all individuals uniformly. A job training program may substantially increase earnings for young, unemployed workers but have negligible or even negative effects for older, skilled workers. A medical treatment may benefit patients with specific genetic markers while causing adverse reactions in others. An environmental policy may reduce pollution exposure in urban areas while having minimal impact in rural communities. Understanding <em>for whom</em> and <em>under what conditions</em> a treatment works is essential for efficient resource allocation, personalized interventions, and equitable policy design.</p>
+<p>Traditional parametric approaches to modeling heterogeneity—such as including interaction terms in regression models—face significant limitations: they require strong a priori specification of effect modifiers, suffer from the curse of dimensionality when many covariates are considered, and lack flexibility to capture complex, non-linear, or high-order interactions. These constraints have motivated the development of <strong>tree-based methods for causal inference</strong>, which combine the interpretability of decision trees with the rigor of causal estimation to discover and quantify heterogeneous treatment effects directly from data.</p>
+<p>Tree-based causal inference operates within the <strong>potential outcomes framework</strong> (Neyman, 1923; Rubin, 1974), which formalizes causal effects as comparisons between counterfactual states. For each unit <span class="math inline">\(i\)</span>, let <span class="math inline">\(Y_i(1)\)</span> denote the outcome if treated and <span class="math inline">\(Y_i(0)\)</span> the outcome if untreated. The individual treatment effect is <span class="math inline">\(\tau_i = Y_i(1) - Y_i(0)\)</span>, but only one potential outcome is ever observed: <span class="math inline">\(Y_i^{\text{obs}} = W_i Y_i(1) + (1-W_i) Y_i(0)\)</span>, where <span class="math inline">\(W_i \in \{0,1\}\)</span> is the treatment indicator.</p>
+<p>The fundamental challenge of causal inference—the <strong>missing data problem</strong>—implies that <span class="math inline">\(\tau_i\)</span> is never directly observable. Identification of causal effects therefore relies on assumptions such as:</p>
+<ul>
+<li><strong>Unconfoundedness (Ignorability)</strong>: <span class="math inline">\(\{Y_i(1), Y_i(0)\} \perp W_i \mid X_i\)</span>, where <span class="math inline">\(X_i\)</span> is a vector of pre-treatment covariates. Conditional on observed confounders, treatment assignment is as good as random.</li>
+<li><strong>Overlap (Common Support)</strong>: <span class="math inline">\(0 &lt; P(W_i = 1 \mid X_i) &lt; 1\)</span> for all <span class="math inline">\(X_i\)</span> in the support. Every unit has a non-zero probability of receiving either treatment.</li>
+<li><strong>SUTVA (Stable Unit Treatment Value Assumption)</strong>: No interference between units and no hidden versions of treatment.</li>
+</ul>
+<p>Under these assumptions, the <strong>Conditional Average Treatment Effect (CATE)</strong>, <span class="math inline">\(\tau(x) = \mathbb{E}[Y(1) - Y(0) \mid X = x]\)</span>, is identified and can be estimated from observational or experimental data. Tree-based methods target the estimation of <span class="math inline">\(\tau(x)\)</span> non-parametrically, allowing the data to reveal complex patterns of effect heterogeneity without restrictive functional form assumptions.</p>
+</section>
+<section id="scientific-terminology" class="level2">
+<h2 class="anchored" data-anchor-id="scientific-terminology">Scientific Terminology</h2>
+<p>Plain-language definitions for the terms in this tutorial are in the <a href="../../Tutorials/00-scientific-terminology-glossary.html">scientific terminology glossary</a>.</p>
+</section>
+<section id="limitations-of-traditional-approaches-to-heterogeneity" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-of-traditional-approaches-to-heterogeneity">Limitations of Traditional Approaches to Heterogeneity</h2>
+<p>Before the advent of machine learning methods for causal inference, researchers primarily relied on three strategies to explore treatment effect heterogeneity:</p>
+<ol type="1">
+<li><p><strong>Stratified Analysis</strong>: Estimating treatment effects within pre-specified subgroups (e.g., by age, gender, or risk score). This approach is transparent but suffers from low power in small strata, multiple testing issues, and the inability to discover novel subgroups.</p></li>
+<li><p><strong>Parametric Interaction Models</strong>: Including treatment-by-covariate interaction terms in regression models. While flexible in theory, this approach requires correct specification of interaction functional forms and becomes infeasible with many covariates due to overfitting and multicollinearity.</p></li>
+<li><p><strong>Meta-learners</strong>: Two-stage procedures such as the S-learner (pooling treatment and control to predict outcomes) or T-learner (fitting separate models for each arm). These methods can capture heterogeneity but often lack formal inference guarantees and may be sensitive to model misspecification in the first stage.</p></li>
+</ol>
+<p>These approaches share a common limitation: they treat heterogeneity exploration as a secondary analysis performed <em>after</em> estimating an average effect, rather than integrating heterogeneity discovery directly into the causal estimation procedure. Tree-based causal inference addresses this gap by designing splitting criteria and estimation procedures that explicitly optimize for the detection of heterogeneous treatment effects.</p>
+</section>
+<section id="core-innovations-of-tree-based-causal-methods" class="level2">
+<h2 class="anchored" data-anchor-id="core-innovations-of-tree-based-causal-methods">Core Innovations of Tree-Based Causal Methods</h2>
+<p>The methodological foundation of tree-based causal inference was established by Athey and Imbens (2016), who introduced the <strong>Causal Tree</strong> algorithm. Their work introduced three critical innovations that distinguish causal trees from standard regression trees:</p>
+<section id="causal-splitting-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="causal-splitting-criterion">Causal Splitting Criterion</h3>
+<p>Standard decision trees (e.g., CART) partition data to minimize the mean squared error of outcome prediction. In contrast, causal trees split nodes to <strong>maximize the difference in estimated treatment effects</strong> between child nodes. Formally, for a candidate split <span class="math inline">\(s\)</span> partitioning parent node <span class="math inline">\(P\)</span> into left (<span class="math inline">\(L\)</span>) and right (<span class="math inline">\(R\)</span>) children, the causal splitting criterion is:</p>
+<p><span class="math display">\[\mathcal{L}(s) = \frac{n_L n_R}{n_P} \left( \hat{\tau}_L - \hat{\tau}_R \right)^2\]</span></p>
+<p>where <span class="math inline">\(\hat{\tau}_L\)</span> and <span class="math inline">\(\hat{\tau}_R\)</span> are the estimated average treatment effects in the left and right child nodes, respectively. This criterion directly targets heterogeneity in causal effects rather than heterogeneity in outcomes.</p>
+</section>
+<section id="honest-estimation" class="level3">
+<h3 class="anchored" data-anchor-id="honest-estimation">Honest Estimation</h3>
+<p>A fundamental challenge in adaptive partitioning is that using the same data to select splits and estimate treatment effects induces overfitting and biased effect estimates. Causal trees address this through <strong>honest estimation</strong>: the data are randomly split into two subsamples: - A <em>training subsample</em> used to determine the tree structure (i.e., where to split). - An <em>estimation subsample</em> used to compute treatment effects within the resulting leaves.</p>
+<p>This separation ensures that treatment effect estimates are unbiased and that valid confidence intervals can be constructed, a property not guaranteed by conventional tree algorithms.</p>
+</section>
+<section id="causal-cross-validation-and-pruning" class="level3">
+<h3 class="anchored" data-anchor-id="causal-cross-validation-and-pruning">Causal Cross-Validation and Pruning</h3>
+<p>Tree complexity is controlled via cross-validation that evaluates the accuracy of <em>treatment effect estimation</em> rather than outcome prediction. The complexity parameter (<span class="math inline">\(cp\)</span>) and pruning procedure are selected to minimize the mean squared error of CATE estimates on held-out data, balancing the discovery of meaningful heterogeneity against the risk of spurious subgroup identification.</p>
+</section>
+</section>
+<section id="applications-across-domains" class="level2">
+<h2 class="anchored" data-anchor-id="applications-across-domains">Applications Across Domains</h2>
+<p>Tree-based causal inference has been successfully applied to diverse scientific and policy questions:</p>
+<ul>
+<li><strong>Healthcare</strong>: Identifying patient subgroups that benefit most from targeted therapies (e.g., immunotherapy response prediction; Chen et al., 2022).</li>
+<li><strong>Education</strong>: Evaluating heterogeneous effects of instructional interventions across student demographics and prior achievement levels (Angrist et al., 2020).</li>
+<li><strong>Labor Economics</strong>: Discovering which workers gain the most from job training programs, unemployment benefits, or minimum wage policies (Davis &amp; Heller, 2020).</li>
+<li><strong>Environmental Policy</strong>: Assessing distributional impacts of pollution regulations, conservation incentives, or climate adaptation programs across geographic and socioeconomic strata.</li>
+<li><strong>Digital Experimentation</strong>: Optimizing A/B testing strategies in technology companies by personalizing treatment assignment based on user characteristics (Athey et al., 2021).</li>
+</ul>
+<p>In each domain, the ability to move beyond “one-size-fits-all” average effects toward nuanced, subgroup-specific insights has enhanced both scientific understanding and practical decision-making.</p>
+</section>
+<section id="methodological-landscape-from-trees-to-forests" class="level2">
+<h2 class="anchored" data-anchor-id="methodological-landscape-from-trees-to-forests">Methodological Landscape: From Trees to Forests</h2>
+<p>Since the introduction of causal trees, the field has expanded to encompass a rich ecosystem of tree-based causal methods:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 24%">
+<col style="width: 27%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Key Reference</th>
+<th>Primary Use Case</th>
+<th>Strengths</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Causal Tree</strong></td>
+<td>Athey &amp; Imbens (2016)</td>
+<td>Interpretable subgroup discovery</td>
+<td>Transparent rules, valid inference via honesty</td>
+</tr>
+<tr class="even">
+<td><strong>Causal Forest</strong></td>
+<td>Wager &amp; Athey (2018)</td>
+<td>Accurate CATE estimation &amp; inference</td>
+<td>Lower variance, asymptotic normality, variable importance</td>
+</tr>
+<tr class="odd">
+<td><strong>Model-Based Causal Trees</strong></td>
+<td>Foster et al.&nbsp;(2011); Su et al.&nbsp;(2009)</td>
+<td>Parametric effect modeling within leaves</td>
+<td>Combines interpretability with flexible within-leaf modeling</td>
+</tr>
+<tr class="even">
+<td><strong>Bayesian Causal Trees</strong></td>
+<td>Hill (2011); Linero &amp; Yang (2018)</td>
+<td>Uncertainty quantification via posterior inference</td>
+<td>Natural handling of complex hierarchies and missing data</td>
+</tr>
+<tr class="odd">
+<td><strong>Optimized Policy Trees</strong></td>
+<td>Athey &amp; Wager (2021); Zhou et al.&nbsp;(2023)</td>
+<td>Learning optimal treatment assignment rules</td>
+<td>Directly optimizes decision policies rather than effect estimation</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="causal-tree" class="level2">
+<h2 class="anchored" data-anchor-id="causal-tree">Causal Tree</h2>
+<p>A <strong>Causal Tree</strong> is a machine learning algorithm designed to estimate <strong>heterogeneous treatment effects</strong>.</p>
+<p>While a standard decision tree predicts an <strong>outcome</strong> (e.g., “Will this customer churn?”), a Causal Tree estimates a <strong>causal effect</strong> (e.g., “How much does sending a discount coupon <em>cause</em> this customer to stay?”).</p>
+<p>It was popularized by economists <strong>Susan Athey and Guido Imbens (2016)</strong> to bridge the gap between machine learning (prediction) and econometrics (causal inference).</p>
+<section id="the-problem-why-averages-lie" class="level3">
+<h3 class="anchored" data-anchor-id="the-problem-why-averages-lie">The Problem: Why Averages Lie</h3>
+<p>In policy and business, we often calculate the <strong>Average Treatment Effect (ATE)</strong>. - <em>Example:</em> “On average, the job training program increases earnings by $1,500.”</p>
+<p>However, averages hide important details. The program might: - Increase earnings by <strong>$5,000</strong> for young workers. - Decrease earnings by <strong>$2,000</strong> for older workers (perhaps due to time away from work).</p>
+<p>If you only look at the average ($1,500), you might roll out the program to everyone, inadvertently harming the older group. A <strong>Causal Tree</strong> automatically finds these subgroups and estimates the specific effect for each. This is called the <strong>Conditional Average Treatment Effect (CATE)</strong>.</p>
+</section>
+<section id="causal-tree-vs.-standard-decision-tree" class="level3">
+<h3 class="anchored" data-anchor-id="causal-tree-vs.-standard-decision-tree">Causal Tree vs.&nbsp;Standard Decision Tree</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Standard Decision Tree (CART)</th>
+<th style="text-align: left;">Causal Tree</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Goal</strong></td>
+<td style="text-align: left;">Predict the outcome (<span class="math inline">\(Y\)</span>) accurately.</td>
+<td style="text-align: left;">Estimate the treatment effect (<span class="math inline">\(\tau\)</span>) accurately.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Splitting Rule</strong></td>
+<td style="text-align: left;">Minimizes variance of <span class="math inline">\(Y\)</span> in the leaves.</td>
+<td style="text-align: left;">Maximizes the <strong>difference in treatment effects</strong> between leaves.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Output</strong></td>
+<td style="text-align: left;">“People in this group earn $50k.”</td>
+<td style="text-align: left;">“People in this group gain $5k from treatment.”</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Bias Risk</strong></td>
+<td style="text-align: left;">Overfitting leads to poor prediction.</td>
+<td style="text-align: left;">Overfitting leads to <strong>biased causal estimates</strong>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-splitting-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="the-splitting-criterion">The Splitting Criterion</h3>
+<ul>
+<li><strong>Standard Tree:</strong> Asks, “Which split makes the outcomes in each group most similar?”</li>
+<li><strong>Causal Tree:</strong> Asks, “Which split makes the treatment effects in each group most <strong>different</strong>?”</li>
+</ul>
+<p>Mathematically, it chooses splits that maximize:</p>
+<p><span class="math display">\[\text{Criterion} = \frac{n_{\text{left}} \cdot n_{\text{right}}}{n_{\text{parent}}} \times (\hat{\tau}_{\text{left}} - \hat{\tau}_{\text{right}})^2\]</span></p>
+<p><em>(It wants to find a split where the effect on the left is very different from the effect on the right.)</em></p>
+</section>
+<section id="how-it-works-step-by-step" class="level3">
+<h3 class="anchored" data-anchor-id="how-it-works-step-by-step">How It Works (Step-by-Step)</h3>
+<ol type="1">
+<li><strong>Input:</strong> You provide data with:
+<ul>
+<li><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong>: What happened (e.g., Earnings).</li>
+<li><strong>Treatment (<span class="math inline">\(W\)</span>)</strong>: What intervention occurred (e.g., Training = 1, No Training = 0).</li>
+<li><strong>Covariates (<span class="math inline">\(X\)</span>)</strong>: Characteristics (e.g., Age, Education).</li>
+</ul></li>
+<li><strong>Partitioning:</strong> The algorithm recursively splits the data based on <span class="math inline">\(X\)</span> (e.g., <code>Age &lt; 25</code>).</li>
+<li><strong>Stopping:</strong> It stops splitting when leaves become too small or when splits no longer reveal significant differences in treatment effects.</li>
+<li><strong>Pruning:</strong> It uses cross-validation to remove branches that don’t generalize well.</li>
+<li><strong>Output:</strong> A tree where every leaf contains:
+<ul>
+<li>A definition of the subgroup (e.g., <code>Age &lt; 25</code> AND <code>Education &gt; 12</code>).</li>
+<li>The estimated treatment effect for that subgroup.</li>
+<li>A standard error/confidence interval.</li>
+</ul></li>
+</ol>
+</section>
+<section id="key-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="key-assumptions">Key Assumptions</h3>
+<p>Like all causal inference methods, Causal Trees rely on assumptions:</p>
+<ol type="1">
+<li><strong>Unconfoundedness:</strong> All variables that affect both treatment and outcome are observed in <span class="math inline">\(X\)</span>. (No hidden bias).</li>
+<li><strong>Overlap:</strong> For every subgroup found, there are both treated and control units. (You can’t estimate an effect if everyone in a leaf was treated).</li>
+<li><strong>Honesty:</strong> The estimation sample must be independent of the training sample (handled automatically by the algorithm).</li>
+</ol>
+</section>
+</section>
+<section id="causal-forests" class="level2">
+<h2 class="anchored" data-anchor-id="causal-forests">Causal Forests</h2>
+<p><strong>Causal Forest</strong> (often stylized as “causal forest”) is a machine learning method for estimating <strong>Heterogeneous Treatment Effects (HTE)</strong> in a causal inference setting. It extends the classic random forest algorithm (Breiman, 2001) to estimate the <strong>Conditional Average Treatment Effect (CATE)</strong>, i.e., how much a treatment (or intervention) affects an outcome for units with different characteristics <span class="math inline">\(x\)</span>, rather than just a single average treatment effect.</p>
+<p>It is particularly popular in economics, social sciences, medicine, and policy evaluation because it is nonparametric, flexible, handles high-dimensional covariates well, and provides valid statistical inference (confidence intervals) under certain conditions.</p>
+<p>Causal Forests are designed to estimate the <strong>treatment effect function</strong> <span class="math inline">\(\tau(x) = E[Y(1) - Y(0) \mid X=x]\)</span>, where <span class="math inline">\(Y(1)\)</span> and <span class="math inline">\(Y(0)\)</span> are the potential outcomes under treatment and control, respectively. The method builds an ensemble of “causal trees” that partition the covariate space to find subgroups with different treatment effects, and then aggregates these trees to produce a smooth estimate of <span class="math inline">\(\tau(x)\)</span>.</p>
+<section id="how-causal-forest-works" class="level3">
+<h3 class="anchored" data-anchor-id="how-causal-forest-works">How Causal Forest Works</h3>
+<p>Standard random forests predict outcomes <span class="math inline">\(Y\)</span> by averaging many regression trees. Causal forests instead target the <em>treatment effect</em> directly. The core idea is to build an ensemble of “causal trees” and then aggregate them, with important modifications to ensure valid causal estimation and inference.</p>
+<p>Key steps and innovations:</p>
+<ol type="1">
+<li><strong>Honest splitting</strong> (crucial for valid inference):
+<ul>
+<li>The training data is randomly split into two halves: a “splitting” sample and an “estimation” sample.</li>
+<li>Trees are grown using the splitting sample to decide where to partition (which variables and cut-points to use).</li>
+<li>The estimation sample is used only to estimate the treatment effect <em>within each leaf</em> (avoiding overfitting/bias that would occur if the same data were used for both).</li>
+</ul></li>
+<li><strong>Special splitting criterion</strong> (not variance reduction as in standard random forests):
+<ul>
+<li>The algorithm seeks splits that maximize heterogeneity in treatment effects (i.e., it tries to find subgroups where <span class="math inline">\(\tau(x)\)</span> differs as much as possible).</li>
+<li>It typically maximizes a score based on the variance of estimated treatment effects across child nodes (or a related criterion like the causal tree splitting rule from Athey &amp; Imbens).</li>
+<li>In practice, many implementations use an approximate score derived from doubly robust / orthogonalized scores (e.g., based on residuals after partialling out nuisance functions like outcome regression and propensity scores).</li>
+</ul></li>
+<li><strong>Adaptive neighborhood weighting</strong> (instead of simple leaf averaging):
+<ul>
+<li>Each tree defines an adaptive neighborhood around a point <span class="math inline">\(x\)</span> (the observations that fall into the same leaf as <span class="math inline">\(x\)</span>).</li>
+<li>The full forest creates a smooth, adaptive weighting function <span class="math inline">\(\alpha_i(x)\)</span>: how much weight each training observation <span class="math inline">\(i\)</span> receives when predicting <span class="math inline">\(\tau(x)\)</span>.</li>
+<li>The final <span class="math inline">\(\hat{\tau}(x)\)</span> is a weighted average of “pseudo-outcomes” (often doubly robust scores or transformed residuals that isolate the treatment effect) using these forest weights.</li>
+</ul></li>
+<li><strong>Doubly robust / orthogonalization</strong> (in modern implementations):
+<ul>
+<li>To reduce bias from model misspecification, the method often uses “scores” that are orthogonal to nuisance parameters (e.g., Robinson-style residuals or AIPW scores).</li>
+<li>This makes the estimator robust to errors in estimating the baseline outcome function or propensity score.</li>
+</ul></li>
+<li><strong>Inference</strong>:
+<ul>
+<li>Under regularity conditions (including honesty and subsampling), point estimates are consistent, asymptotically normal, and variance estimates allow valid confidence intervals.</li>
+<li>This is a major advantage over many other machine learning methods for causal effects.</li>
+</ul></li>
+</ol>
+</section>
+<section id="the-mathematical-framework" class="level3">
+<h3 class="anchored" data-anchor-id="the-mathematical-framework">The Mathematical Framework</h3>
+<p>All variations of Causal Forests rely on the <strong>Potential Outcomes Framework</strong> and <strong>Neyman Orthogonalization</strong>. The difference lies in how the <strong>outcome</strong> is defined and how the <strong>leaf estimation</strong> is calculated.</p>
+<ul>
+<li><span class="math inline">\(X_i\)</span>: Covariates (features like age, income).</li>
+<li><span class="math inline">\(W_i\)</span>: Treatment assignment.</li>
+<li><strong>Goal:</strong> Estimate <span class="math inline">\(\tau(x) = E[\text{Effect} \mid X=x]\)</span>.</li>
+</ul>
+<p>For Orthogonalization, to remove bias from confounding variables, all Causal Forests residualize the data before building trees.</p>
+<ol type="1">
+<li><p><strong>Propensity Score:</strong> <span class="math inline">\(\hat{e}(x) = P(W \mid X=x)\)</span></p></li>
+<li><p><strong>Outcome Model:</strong> <span class="math inline">\(\hat{\mu}(x) = E[Y \mid X=x]\)</span></p></li>
+<li><p><strong>Residuals:</strong></p></li>
+</ol>
+<p><span class="math display">\[\tilde{Y}_i = Y_i - \hat{\mu}(X_i)\]</span></p>
+<p><span class="math display">\[\tilde{W}_i = W_i - \hat{e}(X_i)\]</span></p>
+<ol start="4" type="1">
+<li><strong>Leaf Estimation:</strong> Inside each leaf, the effect <span class="math inline">\(\tau\)</span> is estimated by relating <span class="math inline">\(\tilde{Y}\)</span> to <span class="math inline">\(\tilde{W}\)</span>. <strong>This is where the types diverge.</strong></li>
+</ol>
+</section>
+</section>
+<section id="types-of-causal-forests" class="level2">
+<h2 class="anchored" data-anchor-id="types-of-causal-forests">Types of Causal Forests</h2>
+<p>As problems become more complex, the math evolves from scalars to vectors, matrices, and survival functions.</p>
+<section id="standard-causal-forest-binarysingle" class="level3">
+<h3 class="anchored" data-anchor-id="standard-causal-forest-binarysingle">Standard Causal Forest (Binary/Single)</h3>
+<ul>
+<li><strong>Scenario:</strong> One Treatment (Drug vs.&nbsp;Placebo), One Outcome (Revenue).</li>
+<li><strong>Treatment (<span class="math inline">\(W\)</span>)</strong>: Binary <span class="math inline">\(\{0, 1\}\)</span>.</li>
+<li><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong>: Scalar (Continuous or Binary).</li>
+<li><strong>Math:</strong> Simple linear regression in leaves. <span class="math display">\[\hat{\tau}(x) = \frac{\sum \tilde{W}_i \tilde{Y}_i}{\sum \tilde{W}_i^2}\]</span></li>
+<li><strong>Use Case:</strong> Standard A/B testing, basic policy evaluation.</li>
+</ul>
+</section>
+<section id="multi-arm-causal-forest" class="level3">
+<h3 class="anchored" data-anchor-id="multi-arm-causal-forest">Multi-Arm Causal Forest</h3>
+<ul>
+<li><strong>Scenario:</strong> Multiple Treatments (Drug A vs.&nbsp;Drug B vs.&nbsp;Placebo), One Outcome.</li>
+<li><strong>Treatment (<span class="math inline">\(W\)</span>)</strong>: Categorical <span class="math inline">\(\{0, 1, \dots, K\}\)</span>.</li>
+<li><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong>: Scalar.</li>
+<li><strong>Math:</strong> <span class="math inline">\(W\)</span> is one-hot encoded into a vector <span class="math inline">\(\mathbf{D}_i\)</span>. Leaf estimation solves for a <strong>vector of effects</strong> <span class="math inline">\(\boldsymbol{\tau}(x)\)</span> (one effect per arm).</li>
+</ul>
+<p><span class="math display">\[\hat{\boldsymbol{\tau}}(x) = \left( \sum \tilde{\mathbf{D}}_i \tilde{\mathbf{D}}_i^T \right)^{-1} \left( \sum \tilde{\mathbf{D}}_i \tilde{Y}_i \right)\]</span></p>
+<ul>
+<li><strong>Use Case:</strong> Dose-response studies, choosing between multiple marketing strategies.</li>
+</ul>
+</section>
+<section id="multi-outcome-causal-forest" class="level3">
+<h3 class="anchored" data-anchor-id="multi-outcome-causal-forest">Multi-Outcome Causal Forest</h3>
+<ul>
+<li><strong>Scenario:</strong> One Treatment, Multiple Outcomes (Revenue AND Retention AND Satisfaction).</li>
+<li><strong>Treatment (<span class="math inline">\(W\)</span>)</strong>: Binary or Categorical.</li>
+<li><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong>: Vector <span class="math inline">\(\mathbf{Y} \in \mathbb{R}^M\)</span>.</li>
+<li><strong>Math:</strong>
+<ul>
+<li>Estimates a <strong>vector of effects</strong> <span class="math inline">\(\boldsymbol{\tau}(x)\)</span> (one effect per outcome).</li>
+<li>Uses the outcome covariance matrix <span class="math inline">\(\Sigma\)</span> to weight the loss function (exploiting correlations between outcomes to reduce variance).</li>
+<li>Requires <strong>Multiple Testing Correction</strong> (e.g., Bonferroni) for confidence intervals.</li>
+</ul></li>
+<li><strong>Use Case:</strong> Holistic health metrics, comprehensive business KPIs.</li>
+</ul>
+</section>
+<section id="causal-survival-forest-time-to-event" class="level3">
+<h3 class="anchored" data-anchor-id="causal-survival-forest-time-to-event">Causal Survival Forest (Time-to-Event)</h3>
+<ul>
+<li><strong>Scenario:</strong> Treatment affects <strong>time until an event</strong> (Death, Churn, Machine Failure).</li>
+<li><strong>Treatment (<span class="math inline">\(W\)</span>)</strong>: Binary or Categorical.</li>
+<li><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong>: <strong>Tuple</strong> <span class="math inline">\((T_i, \delta_i)\)</span>.
+<ul>
+<li><span class="math inline">\(T_i\)</span>: Time observed.</li>
+<li><span class="math inline">\(\delta_i\)</span>: Censoring indicator (<span class="math inline">\(1\)</span> if event observed, <span class="math inline">\(0\)</span> if censored/lost to follow-up).</li>
+</ul></li>
+<li><strong>The Challenge:</strong> You cannot use standard squared error because censored data (<span class="math inline">\(\delta=0\)</span>) does not reveal the true outcome <span class="math inline">\(Y\)</span>.</li>
+<li><strong>Math Adaptation:</strong>
+<ol type="1">
+<li><strong>IPCW Weighting:</strong> Outcomes are weighted by the Inverse Probability of Censoring Weighting to correct for bias.</li>
+</ol></li>
+</ul>
+<p><span class="math display">\[\tilde{Y}_i^{\text{surv}} = \frac{\delta_i \cdot Y_i}{\hat{G}(T_i \mid X_i)}\]</span></p>
+<p>(Where <span class="math inline">\(\hat{G}\)</span> is the probability of <em>not</em> being censored).</p>
+<ol start="2" type="1">
+<li><strong>Leaf Estimation:</strong> Instead of minimizing squared error, leaves often minimize a <strong>Cox Partial Likelihood</strong> or estimate the difference in survival probability at a specific horizon <span class="math inline">\(t\)</span>.</li>
+</ol>
+<p><span class="math display">\[\hat{\tau}(x) = \text{Effect on Hazard Ratio or Survival Probability } S(t \mid x, W=1) - S(t \mid x, W=0)\]</span></p>
+<ul>
+<li><strong>Use Case:</strong> Clinical trials (time to death), Customer Churn (time to cancellation), Reliability Engineering.</li>
+</ul>
+</section>
+<section id="combined-multi-arm-multi-outcome-survival" class="level3">
+<h3 class="anchored" data-anchor-id="combined-multi-arm-multi-outcome-survival">Combined (Multi-Arm + Multi-Outcome + Survival)</h3>
+<ul>
+<li><strong>Scenario:</strong> Multiple Treatments AND Multiple Time-to-Event Outcomes (e.g., Time to Death AND Time to Relapse).</li>
+<li><strong>Treatment (<span class="math inline">\(W\)</span>)</strong>: Categorical <span class="math inline">\(\{0, \dots, K\}\)</span>.</li>
+<li><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong>: Vector of Survival Tuples <span class="math inline">\(\mathbf{Y} \in \{(T, \delta)\}^M\)</span>.</li>
+<li><strong>Math:</strong>
+<ul>
+<li>The parameter is a <strong>Matrix</strong> <span class="math inline">\(\boldsymbol{\Tau}(x)\)</span> of size <span class="math inline">\(K \times M\)</span>.</li>
+<li>Entry <span class="math inline">\(\Tau_{km}\)</span> = Effect of Arm <span class="math inline">\(k\)</span> on Survival Outcome <span class="math inline">\(m\)</span>.</li>
+<li>Leaf estimation uses <strong>Multivariate Survival Regression</strong> with IPCW weighting.</li>
+</ul></li>
+<li><strong>Use Case:</strong> Complex clinical trials (multiple drugs, multiple competing risks).</li>
+</ul>
+</section>
+<section id="key-differences-among-causal-forest-types" class="level3">
+<h3 class="anchored" data-anchor-id="key-differences-among-causal-forest-types">Key Differences Among Causal Forest Types</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Standard</th>
+<th style="text-align: left;">Multi-Arm</th>
+<th style="text-align: left;">Multi-Outcome</th>
+<th style="text-align: left;">Causal Survival</th>
+<th style="text-align: left;">Combined</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Treatment (<span class="math inline">\(W\)</span>)</strong></td>
+<td style="text-align: left;">Binary</td>
+<td style="text-align: left;">Categorical</td>
+<td style="text-align: left;">Binary/Cat</td>
+<td style="text-align: left;">Binary/Cat</td>
+<td style="text-align: left;">Categorical</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Outcome (<span class="math inline">\(Y\)</span>)</strong></td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">Scalar</td>
+<td style="text-align: left;">Vector</td>
+<td style="text-align: left;">Time + Censor <span class="math inline">\((T, \delta)\)</span></td>
+<td style="text-align: left;">Vector of Times</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Output Parameter</strong></td>
+<td style="text-align: left;">Scalar <span class="math inline">\(\tau\)</span></td>
+<td style="text-align: left;">Vector <span class="math inline">\(\boldsymbol{\tau}\)</span></td>
+<td style="text-align: left;">Vector <span class="math inline">\(\boldsymbol{\tau}\)</span></td>
+<td style="text-align: left;">Hazard Ratio / Survival Diff</td>
+<td style="text-align: left;">Matrix of Hazards</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Leaf Math</strong></td>
+<td style="text-align: left;">Simple Ratio</td>
+<td style="text-align: left;">Matrix Inversion</td>
+<td style="text-align: left;">Covariance Weighting</td>
+<td style="text-align: left;">IPCW / Cox Likelihood</td>
+<td style="text-align: left;">Multivariate Survival</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Data Challenge</strong></td>
+<td style="text-align: left;">Confounding</td>
+<td style="text-align: left;">Sparsity</td>
+<td style="text-align: left;">Multiple Testing</td>
+<td style="text-align: left;">Censoring Bias</td>
+<td style="text-align: left;">Sparsity + Censoring</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Inference</strong></td>
+<td style="text-align: left;">Standard CI</td>
+<td style="text-align: left;">Joint Regions</td>
+<td style="text-align: left;">FDR Correction</td>
+<td style="text-align: left;">Survival Confidence Bands</td>
+<td style="text-align: left;">Complex Joint Inference</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Interpretability</strong></td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Medium (Time-dependent)</td>
+<td style="text-align: left;">Low</td>
+</tr>
+</tbody>
+</table>
+<p>Key Differences Explained:</p>
+<ol type="1">
+<li><strong>Nature of the Outcome:</strong>
+<ul>
+<li><strong>Standard/Multi-Arm:</strong> The outcome is fixed (e.g., Revenue after 1 month).</li>
+<li><strong>Survival:</strong> The outcome is dynamic over time. The effect <span class="math inline">\(\tau(x)\)</span> might change depending on <em>when</em> you look (e.g., Treatment helps early but harms later).</li>
+</ul></li>
+<li><strong>Censoring vs.&nbsp;Missing Data:</strong>
+<ul>
+<li>In <strong>Standard</strong> forests, missing data is usually dropped or imputed.</li>
+<li>In <strong>Survival</strong> forests, censoring is informative. If a patient drops out because they got better, that is data. Causal Survival Forests use <strong>IPCW</strong> to mathematically account for this without bias.</li>
+</ul></li>
+<li><strong>Dimensionality:</strong>
+<ul>
+<li><strong>Multi-Outcome</strong> adds dimensions via metrics (Revenue, Satisfaction).</li>
+<li><strong>Survival</strong> adds dimensions via time (the effect is a curve, not just a number).</li>
+<li><strong>Combined</strong> is the most data-hungry, requiring enough events per treatment arm to estimate survival curves reliably.</li>
+</ul></li>
+<li><strong>Inference:</strong>
+<ul>
+<li><strong>Standard:</strong> Is <span class="math inline">\(\tau \neq 0\)</span>?</li>
+<li><strong>Survival:</strong> Is the Hazard Ratio <span class="math inline">\(\neq 1\)</span>? Or is the Survival Curve significantly different at time <span class="math inline">\(t\)</span>? Confidence intervals must account for the variance introduced by estimating the censoring distribution.</li>
+</ul></li>
+</ol>
+</section>
+</section>
+<section id="summary-and-conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="summary-and-conclusions">Summary and Conclusions</h2>
+<p>Tree-based methods for causal inference have revolutionized our ability to estimate and understand heterogeneous treatment effects in complex, high-dimensional settings. Single <strong>Causal Trees</strong> provide interpretable subgroup discovery, while <strong>Causal Forests</strong> enhance accuracy and inference through ensemble learning and honest estimation. Extensions to multi-arm, multi-outcome, and survival settings allow practitioners to tackle a wide range of real-world problems, from personalized medicine to targeted marketing. Unlike standard predictive models, Causal Forests isolate the causal impact of a treatment (<span class="math inline">\(W\)</span>) on an outcome (<span class="math inline">\(Y\)</span>) while controlling for confounding variables (<span class="math inline">\(X\)</span>). The algorithm relies on <strong>Neyman Orthogonalization</strong> (residualizing treatments and outcomes) and <strong>Honest Estimation</strong> (sample splitting) to ensure unbiased estimates and valid statistical inference.</p>
+<p>The framework extends beyond simple binary treatments to handle complex real-world scenarios: - <strong>Multi-Arm:</strong> Handles multiple treatment variations (e.g., dosage levels). - <strong>Multi-Outcome:</strong> Estimates effects across multiple metrics simultaneously (e.g., revenue and retention). - <strong>Causal Survival:</strong> Adapts the logic for time-to-event data with censoring (e.g., churn or mortality), using Inverse Probability of Censoring Weighting (IPCW). - <strong>Combined:</strong> Integrates these extensions for high-dimensional causal analysis, though at the cost of higher data requirements.</p>
+<p>Ultimately, successful application of Causal Forests hinges on selecting the appropriate variant for the problem at hand: Standard models suffice for simple A/B testing, whereas Causal Survival Forests are essential for time-to-event data to mitigate censoring bias, and Multi-Arm approaches should be reserved for comparing distinct interventions. Practitioners must remain mindful that data requirements scale with complexity, as advanced Multi-Arm and Combined models are prone to sparsity and demand sufficient samples per treatment arm to ensure stability. Regardless of the chosen model, validity depends on critical assumptions like Unconfoundedness and Overlap, the violation of which renders even the most complex algorithms useless. Moreover, the true value of Causal Forests lies in their inferential capabilities, specifically the generation of confidence intervals, though Multi-Outcome scenarios necessitate Multiple Testing Corrections to prevent false discoveries. For implementation, Python users are best served by the flexible EconML library, while R users, particularly those focusing on Survival analysis, should utilize the state-of-the-art <code>grf</code> package.</p>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<ol type="1">
+<li><p><strong>Athey, S., &amp; Wager, S. (2019).</strong> <em>Estimating Treatment Effects with Causal Forests: An Application.</em> Observational Studies.<br>
+(The seminal paper applying causal forests to real-world data.)</p></li>
+<li><p><strong>Athey, S., Tibshirani, J., &amp; Wager, S. (2019).</strong> <em>Generalized Random Forests.</em> The Annals of Statistics.<br>
+(The theoretical foundation covering the framework for survival and multi-arm extensions.)</p></li>
+<li><p><strong>Chernozhukov, V., et al.&nbsp;(2018).</strong> <em>Double/Debiased Machine Learning for Treatment and Structural Parameters.</em> The Econometrics Journal.<br>
+(Explains the orthogonalization math used to remove confounding bias.)</p></li>
+<li><p><strong>Microsoft EconML Documentation.</strong><br>
+(Comprehensive Python library for causal inference, including CausalForestDML.)<br>
+https://econml.azurewebsites.net/</p></li>
+<li><p><strong>Generalized Random Forests (grf) R Package.</strong><br>
+(The leading R implementation, including <code>causal_survival_forest</code>.)<br>
+https://grf-labs.github.io/grf/</p></li>
+<li><p><strong>Hernán, M. A., &amp; Robins, J. M. (2020).</strong> <em>Causal Inference: What If.</em> Boca Raton: Chapman &amp; Hall/CRC.<br>
+(The definitive textbook for understanding the potential outcomes framework.)</p></li>
+<li><p><strong>Uber CausalML Documentation.</strong><br>
+(Alternative Python library focusing on uplift modeling and causal forests.)<br>
+https://causalml.readthedocs.io/</p></li>
+<li><p><strong>Knaus, M. C., Lechner, M., &amp; Strittmatter, A. (2021).</strong> <em>Machine Learning Estimation of Heterogeneous Treatment Effects: An Empirical Comparison.</em> Journal of Applied Econometrics.<br>
+(Provides practical comparisons of different causal ML algorithms.)</p></li>
+</ol>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/zia207\.github\.io\/PyCausalML\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../Tutorials/02_08_05_00_casual_ml_introduction.html" class="pagination-link" aria-label="Introduction to Causal Machine Learning">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Introduction to Causal Machine Learning</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.html" class="pagination-link" aria-label="Causal Tree">
+        <span class="nav-page-text">Causal Tree</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© CC-By Zia Ahmed, Upatta Analytics, 2026</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

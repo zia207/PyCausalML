@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>instrumental_causal_xgboost – PyCausalML</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.html" rel="next">
+<link href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-f1aadacce99040138bbb613f9330654f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-8b4baf804e461d9b72633f0de59a0cac.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-c3ddef8e9936373b1ee063945a43a984.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-bf6de5ccb156a65fc439966d4053cafd.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<style>
+.navbar-logo img { max-height: 42px; width: auto; }
+#quarto-sidebar .sidebar-logo img { max-width: 168px; height: auto; }
+</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="index.qmd" class="navbar-brand navbar-brand-logo">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo light-content">
+    <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="index.qmd">
+    <span class="navbar-title">PyCausalML</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../index.html" aria-current="page"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/02_08_05_00_casual_ml_introduction.html"> 
+<span class="menu-text">Tutorial</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../Tutorials/00-scientific-terminology-glossary.html"> 
+<span class="menu-text">Glossary</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://sites.google.com/view/r-data-sci-env/home"> <i class="bi bi-house" role="img" aria-label="Upatta Analytics">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/zia207/PyCausalML"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/zia-ahmed207"> <i class="bi bi-linkedin" role="img" aria-label="LinkedIn">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:zia207@gmail.com"> <i class="bi bi-envelope" role="img" aria-label="Email">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html"><strong>Tree-Based Models</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.html">Boosted IV Forest</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html"><strong>Tree-Based Models</strong></a></li><li class="breadcrumb-item"><a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.html">Boosted IV Forest</a></li></ol></nav></header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-center sidebar-header">
+      <a href="index.qmd" class="sidebar-logo-link">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="../../logo_PyCausalML.png" alt="PyCausalML" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Package Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/02_08_05_00_casual_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text"><strong>Tree-Based Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Tree-Based Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_02_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_03_causal_survival_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal Survival Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multi-Arm Causal Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Causal XGBoost</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Boosted IV Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Boosted Multi-Arm Causal Model</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Meta-Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_00_meta_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Meta-Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_01_meta_learners_binary_treatments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Binary Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_02_meta_learners_multiple_discrete_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multiple Discrete Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_03_meta_learners_continuous_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Continuous Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_04_tmle_model.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Targeted Maximum Likelihood Estimation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_05_meta_learners_domain_adaptation_learner.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Domain Adaptation Learner</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_02_Meta_Learners/02_08_05_02_06_meta_learners_doubly_robust_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Uplift Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Uplift Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_01_uplift_trees_classification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Classification</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Tree: Regression</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift Random Forest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Uplift XGBoost</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Double Machine Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_00_double_ml_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_01_double_ml_from_basics_to_application.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bias and Orthogonalization</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_02_double_ml_single_multiple_treatment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Single and Multiple Treatments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_03_double_ml_did.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_04_double_ml_iv.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_05_double_ml_dynamic_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dynamic Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_06_double_ml_weighted_double_ml.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Weighted Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_07_double_ml_cluster_robust.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Cluster-Robust Double ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_04_DoubleML/02_08_05_04_08_double_ml_ensemble_learners.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ensemble Learners</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Deep Causal Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_00_DeepCausalML_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Deep Causal Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Treatment Effect Estimators</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_00_DeepCausalML_treatment_effect_estimators_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Treatment Effect Estimators</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_01_DeepCausalML_TARNET.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">TARNet: Treatment-Agnostic Representation Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_02_DeepCausalML_CFRNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CFRNet: Counterfactual Regression Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_03_DeepCausalML_DragonNet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DragonNet: Propensity-Adjusted Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_04_DeepCausalML_GANITE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GANITE: Generative Adversarial Treatment Effects</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_01_05_DeepCausalML_NeuralDML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NeuralDML: Neural Double Machine Learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Generative Latent-Variable Causal Models</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_00_DeepCausalML_GLVCM_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to GLVCMs</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_01_DeepCausalML_CausalVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalVAE: Causal Variational Autoencoder</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_02_DeepCausalML_iVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">iVAE: Identifiable Variational Autoencoders</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_03_DeepCausalML_CausalDiscrepancyVAE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalDiscrepancyVAE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_04_DeepCausalML_CausalGAN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalGAN: Causal Generative Network</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_05_DeepCausalML_DSCM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Deep Structural Causal Models (DSCMs)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_02_06_DeepCausalML_CausalEGM.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CausalEGM: Causal Encoding Generative Modeling</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Causal Structural Learning</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_00_DeepCausalML_structural_learning_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Causal Structural Learning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_01_DeepCausalML_NOTEARS.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">NOTEARS: Continuous Optimization Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_02_DeepCausalML_DagGNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAG-GNN</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_03_DeepCausalML_GranDag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GraN-DAG</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_04_DeepCausalML_DAGMA_NoCurl.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">DAGMA and DAG-NoCurl</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_03_05_DeepCausalML_CASTLE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">CASTLE: Causal Structure Learning Regularization</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+          <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Temporal Deep Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth2 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_00_DeepCausalML_timeseries_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Temporal Deep Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_01_DeepCausalML_timeseries_neural_granger_causality.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Neural Granger Causality</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_02_DeepCausalML_timeseries_structural_causal_model_SMC.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structural Causal Models with Deep Components</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_03_DeepCausalML_attention_transformer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Attention and Transformer Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_04_DeepCausalML_timeseries_RNN_LSTM_causalML.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">RNN and LSTM Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_05_DeepCausalML_timeseries_graphNN.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graph Neural Network Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_05_DeepCausalML/02_08_05_05_04_06_DeepCausalML_timeseries_counterfactual_potential.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counterfactual and Potential Outcomes Models</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Bayesian Causal ML</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_00_bayesian_causal_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Bayesian Causal ML</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_01_bayesian_causal_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Causal Inference</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_02_graphs_and_bayesian_networks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graphs and Bayesian Networks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_03_bayesian_structural_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Structural Causal Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_06_Bayesian_CausalML/02_08_05_06_04_bayesian_quasi_experiments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experiments</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Policy Learners</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_00_policy_learners_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Policy Learners</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_01_doubleml_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_02_econml_dr_policy_tree.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Doubly Robust Policy Tree</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_07_Policy_Learners/02_08_05_07_03_econml_policy_forest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Policy Forest</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Quasi-Experiments</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_00_quasi_experiments_introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to Quasi-Experiments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_01_difference_in_differences.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Difference-in-Differences</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_02_synthetic_control.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Synthetic Control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_03_regression_discontinuity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Regression Discontinuity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_04_instrumental_variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Instrumental Variables</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/05_08_Quasi_Experiements/02_08_05_08_05_bayesian_causal_inference_quasi_experimental.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bayesian Quasi-Experimental Inference</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false">
+ <span class="menu-text"><strong>Terminology</strong></span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-14" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-14" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../Tutorials/00-scientific-terminology-glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A–Z glossary of causal inference and machine learning</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On This Page</h2>
+   
+  <ul>
+  <li><a href="#instrumental-causal-xgboost-boosted-iv-forest" id="toc-instrumental-causal-xgboost-boosted-iv-forest" class="nav-link active" data-scroll-target="#instrumental-causal-xgboost-boosted-iv-forest">1.7 Instrumental Causal XGBoost (Boosted IV Forest)</a>
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a>
+  <ul class="collapse">
+  <li><a href="#the-conditional-late" id="toc-the-conditional-late" class="nav-link" data-scroll-target="#the-conditional-late">The Conditional LATE</a></li>
+  <li><a href="#why-boosted" id="toc-why-boosted" class="nav-link" data-scroll-target="#why-boosted">Why “Boosted”?</a></li>
+  <li><a href="#validity-conditions" id="toc-validity-conditions" class="nav-link" data-scroll-target="#validity-conditions">Validity Conditions</a></li>
+  <li><a href="#pipeline-five-steps" id="toc-pipeline-five-steps" class="nav-link" data-scroll-target="#pipeline-five-steps">Pipeline: Five Steps</a></li>
+  <li><a href="#key-features" id="toc-key-features" class="nav-link" data-scroll-target="#key-features">Key Features</a></li>
+  </ul></li>
+  <li><a href="#boosted-iv-forest-with-python" id="toc-boosted-iv-forest-with-python" class="nav-link" data-scroll-target="#boosted-iv-forest-with-python">Boosted IV Forest with Python</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#data-returns-to-education-card-dataset" id="toc-data-returns-to-education-card-dataset" class="nav-link" data-scroll-target="#data-returns-to-education-card-dataset">Data: Returns to Education (Card Dataset)</a>
+  <ul class="collapse">
+  <li><a href="#load-and-prepare-data" id="toc-load-and-prepare-data" class="nav-link" data-scroll-target="#load-and-prepare-data">Load and Prepare Data</a></li>
+  <li><a href="#descriptive-statistics-and-first-stage-check" id="toc-descriptive-statistics-and-first-stage-check" class="nav-link" data-scroll-target="#descriptive-statistics-and-first-stage-check">Descriptive Statistics and First-Stage Check</a></li>
+  <li><a href="#training-a-boosted-iv-forest" id="toc-training-a-boosted-iv-forest" class="nav-link" data-scroll-target="#training-a-boosted-iv-forest">Training a Boosted IV Forest</a></li>
+  <li><a href="#model-summary" id="toc-model-summary" class="nav-link" data-scroll-target="#model-summary">Model Summary</a></li>
+  <li><a href="#predicting-treatment-effects" id="toc-predicting-treatment-effects" class="nav-link" data-scroll-target="#predicting-treatment-effects">Predicting Treatment Effects</a></li>
+  <li><a href="#visualizing-results" id="toc-visualizing-results" class="nav-link" data-scroll-target="#visualizing-results">Visualizing Results</a></li>
+  <li><a href="#cate-distribution-and-partial-dependence" id="toc-cate-distribution-and-partial-dependence" class="nav-link" data-scroll-target="#cate-distribution-and-partial-dependence">CATE Distribution and Partial Dependence</a></li>
+  <li><a href="#predicting-for-new-data" id="toc-predicting-for-new-data" class="nav-link" data-scroll-target="#predicting-for-new-data">Predicting for New Data</a></li>
+  <li><a href="#subgroup-analysis" id="toc-subgroup-analysis" class="nav-link" data-scroll-target="#subgroup-analysis">Subgroup Analysis</a></li>
+  <li><a href="#variable-importance" id="toc-variable-importance" class="nav-link" data-scroll-target="#variable-importance">Variable Importance</a></li>
+  <li><a href="#estimated-late-and-experience" id="toc-estimated-late-and-experience" class="nav-link" data-scroll-target="#estimated-late-and-experience">Estimated LATE and experience</a></li>
+  <li><a href="#shap-values-for-the-conditional-late" id="toc-shap-values-for-the-conditional-late" class="nav-link" data-scroll-target="#shap-values-for-the-conditional-late">SHAP values for the conditional LATE</a></li>
+  </ul></li>
+  <li><a href="#summary-and-conclusion" id="toc-summary-and-conclusion" class="nav-link" data-scroll-target="#summary-and-conclusion">Summary and Conclusion</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Image/05_01_tree_based_models.png" class="img-fluid figure-img"></p>
+<figcaption>Python Banner</figcaption>
+</figure>
+</div>
+<section id="instrumental-causal-xgboost-boosted-iv-forest" class="level1">
+<h1>1.7 Instrumental Causal XGBoost (Boosted IV Forest)</h1>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>A <strong>Boosted IV Forest</strong> estimates heterogeneous treatment effects in settings where treatment assignment is endogenous — that is, correlated with unobserved factors that also affect the outcome. Like a standard Instrumental Forest, it exploits an <strong>instrumental variable</strong> <span class="math inline">\(Z\)</span> that shifts treatment <span class="math inline">\(W\)</span> without directly affecting the outcome <span class="math inline">\(Y\)</span>. The “boosted” part is the first stage. Cross-fitted XGBoost models estimate the outcome mean, the treatment mean, and the instrument mean, which lets the nuisance functions pick up nonlinearities and interactions. The second stage fits two more boosters to the residual products and returns their ratio as the conditional LATE.</p>
+<p>The result is a two-stage estimator: XGBoost estimates the nuisances on tabular covariates, and a residual Wald ratio turns those residuals into a conditional LATE.</p>
+<section id="the-conditional-late" class="level3">
+<h3 class="anchored" data-anchor-id="the-conditional-late">The Conditional LATE</h3>
+<p>The quantity of interest is the <strong>Conditional Local Average Treatment Effect (LATE)</strong> — the treatment effect for <em>compliers</em> (units whose treatment status changes because of <span class="math inline">\(Z\)</span>), allowed to vary with covariates:</p>
+<p><span class="math display">\[\tau(X) = \frac{\text{Cov}[Y - \hat{m}(X),\; Z - \hat{p}(X) \mid X]}{\text{Cov}[W - \hat{e}(X),\; Z - \hat{p}(X) \mid X]}\]</span></p>
+<p>where the three nuisance functions are:</p>
+<ul>
+<li><span class="math inline">\(\hat{m}(X) = E[Y \mid X]\)</span> — the conditional mean outcome, estimated to partial out baseline variation in <span class="math inline">\(Y\)</span>;</li>
+<li><span class="math inline">\(\hat{e}(X) = E[W \mid X]\)</span> — the treatment propensity, estimated to partial out selection into treatment;</li>
+<li><span class="math inline">\(\hat{p}(X) = E[Z \mid X]\)</span> — the instrument propensity, estimated to partial out any covariate-driven variation in <span class="math inline">\(Z\)</span>.</li>
+</ul>
+<p>After residualizing, the numerator <span class="math inline">\(\text{Cov}[\tilde{Y}, \tilde{Z} \mid X]\)</span> captures how much the instrument moves the outcome; the denominator <span class="math inline">\(\text{Cov}[\tilde{W}, \tilde{Z} \mid X]\)</span> captures how much the instrument moves the treatment. Their ratio isolates the local causal effect of <span class="math inline">\(W\)</span> on <span class="math inline">\(Y\)</span> — purged of confounding — for the complier subpopulation with covariates <span class="math inline">\(X = x\)</span>.</p>
+</section>
+<section id="why-boosted" class="level3">
+<h3 class="anchored" data-anchor-id="why-boosted">Why “Boosted”?</h3>
+<p>A standard instrumental forest estimates <span class="math inline">\(\hat{m}\)</span>, <span class="math inline">\(\hat{e}\)</span>, and <span class="math inline">\(\hat{p}\)</span> using regression forests (or skips nuisance estimation entirely if the instrument is assumed randomized). This works well when nuisance functions are smooth and additive, but can underfit when outcomes and treatments depend on complex interactions between covariates.</p>
+<p>Replacing the first stage with <strong>cross-fitted C-XGBoost</strong> addresses this directly:</p>
+<ul>
+<li>XGBoost captures irregular boundaries, high-order interactions, and nonlinear feature effects that regression forests can miss.</li>
+<li><strong>Cross-fitting</strong> (k-fold out-of-sample prediction) prevents the nuisance estimates from overfitting to the training data, which would otherwise inflate the apparent signal in the residuals and bias the second-stage LATE estimates.</li>
+<li>The second stage is a residual Wald ratio on <span class="math inline">\((\tilde{Y}, \tilde{W}, \tilde{Z}, X)\)</span>: one booster fits the outcome–instrument product and another fits the treatment–instrument product. The conditional LATE is their ratio.</li>
+</ul>
+<p>The theoretical justification is the <strong>Neyman orthogonality</strong> of the IV moment condition: the LATE estimator is locally insensitive to small errors in nuisance estimation, meaning flexible first-stage models improve finite-sample performance without introducing asymptotic bias, as long as nuisances converge at a reasonable rate.</p>
+</section>
+<section id="validity-conditions" class="level3">
+<h3 class="anchored" data-anchor-id="validity-conditions">Validity Conditions</h3>
+<p>The Boosted IV Forest inherits the standard IV assumptions:</p>
+<ul>
+<li><strong>Relevance</strong> — <span class="math inline">\(Z\)</span> must be a strong predictor of <span class="math inline">\(W\)</span> conditional on <span class="math inline">\(X\)</span>. Weak instruments inflate the variance of <span class="math inline">\(\tau(X)\)</span> and can cause severe bias. A first-stage regression below reports the instrument coefficient and its F-statistic.</li>
+<li><strong>Exclusion restriction</strong> — <span class="math inline">\(Z\)</span> affects <span class="math inline">\(Y\)</span> only through <span class="math inline">\(W\)</span>, with no direct path. This is not testable from data and must be justified by domain knowledge.</li>
+<li><strong>Independence</strong> — <span class="math inline">\(Z\)</span> is as good as randomly assigned conditional on <span class="math inline">\(X\)</span> (no unmeasured confounders of the <span class="math inline">\(Z \to Y\)</span> path).</li>
+</ul>
+</section>
+<section id="pipeline-five-steps" class="level3">
+<h3 class="anchored" data-anchor-id="pipeline-five-steps">Pipeline: Five Steps</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Image/boosted_IV_forest.png" class="img-fluid figure-img"></p>
+<figcaption>Boosted IV Forest pipeline</figcaption>
+</figure>
+</div>
+<p>A few things worth highlighting from the pipeline:</p>
+<p><strong>Step 2 (cross-fitting) is the critical upgrade over a standard instrumental forest.</strong> Fitting nuisance models on the full training set and then predicting on the same data induces overfitting into the residuals — the residuals appear smaller than they should be, which inflates the apparent signal in the IV covariance. K-fold cross-fitting breaks this feedback loop by ensuring every nuisance prediction is made out-of-sample. The theoretical grounding is <strong>Neyman orthogonality</strong>: the IV moment condition is locally insensitive to small errors in <span class="math inline">\(\hat{m}\)</span>, <span class="math inline">\(\hat{e}\)</span>, and <span class="math inline">\(\hat{p}\)</span>, so cross-fitted nuisances at a moderate convergence rate are sufficient for root-<span class="math inline">\(n\)</span> inference on <span class="math inline">\(\tau(X)\)</span>.</p>
+<p><strong>Step 3 is where the nuisance models meet the causal target.</strong> The residuals <span class="math inline">\((\tilde{Y}, \tilde{W}, \tilde{Z})\)</span> remove variation in <span class="math inline">\(Y\)</span>, <span class="math inline">\(W\)</span>, and <span class="math inline">\(Z\)</span> that can be explained by <span class="math inline">\(X\)</span>. The boosted second stage then estimates where <span class="math inline">\(\text{Cov}[\tilde{Y}, \tilde{Z}] / \text{Cov}[\tilde{W}, \tilde{Z}]\)</span> differs across covariate profiles.</p>
+<p><strong>The first-stage F-statistic in step 4 is not optional.</strong> A weak instrument (<span class="math inline">\(F &lt; 10\)</span> is a common rule of thumb) means <span class="math inline">\(Z\)</span> explains little variation in <span class="math inline">\(W\)</span> after partialling out <span class="math inline">\(X\)</span>, which causes the denominator <span class="math inline">\(\text{Cov}[\tilde{W}, \tilde{Z} \mid X]\)</span> to be near zero. The resulting LATE estimates become extremely noisy and potentially severely biased — the XGBoost first stage cannot rescue a fundamentally weak instrument.</p>
+</section>
+<section id="key-features" class="level3">
+<h3 class="anchored" data-anchor-id="key-features">Key Features</h3>
+<ul>
+<li><strong>Endogeneity correction</strong>: Instrument <span class="math inline">\(Z\)</span> isolates exogenous variation in <span class="math inline">\(W\)</span>.</li>
+<li><strong>Heterogeneous effects</strong>: LATE <span class="math inline">\(\tau(X)\)</span> varies with covariates.</li>
+<li><strong>Flexible first stage</strong>: XGBoost nuisances can capture nonlinearities; cross-fitting avoids overfitting.</li>
+<li><strong>Instrument diagnostics</strong>: a first-stage regression and its F-statistic.</li>
+<li><strong>Subgroup summaries</strong>, <strong>variable importance</strong>, and <strong>SHAP</strong> explanations of the fitted LATE.</li>
+</ul>
+</section>
+</section>
+<section id="boosted-iv-forest-with-python" class="level2">
+<h2 class="anchored" data-anchor-id="boosted-iv-forest-with-python">Boosted IV Forest with Python</h2>
+<p>This tutorial uses the <strong>Card (1995)</strong> dataset to estimate <strong>returns to education</strong> (effect of education on log wages) using <strong>proximity to a 4-year college</strong> as an instrument, implemented with the <code>BoostedIVForest</code> class from PyCausalML.</p>
+</section>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>This notebook fits <strong><code>BoostedIVForest</code></strong> from <strong><a href="https://github.com/zia207/PyCausalML">PyCausalML</a></strong> (<code>pycausalml.tree_based_models</code>).</p>
+<p><code>fit(X, treatment, y, instrument)</code> returns the fitted estimator. <code>predict</code> returns a NumPy array of conditional average treatment effects. A fitted model also exposes <code>explain</code> and <code>plot_shap</code>.</p>
+<p>Install the package from this repository, with the plotting and boosting extras.</p>
+<p>The example is the Card (1995) extract used in the instrumental forest tutorial: log wage, years of education, and proximity to a four-year college. <code>learner='xgb'</code> uses XGBoost for the residual Wald estimator.</p>
+<div id="1fe9164e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:37:51.227851Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:37:51.227408Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:37:56.340274Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:37:56.338059Z&quot;}}" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> subprocess</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _repo_root() <span class="op">-&gt;</span> Path:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    here <span class="op">=</span> Path.cwd().resolve()</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> cand <span class="kw">in</span> [here, <span class="op">*</span>here.parents]:</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (cand <span class="op">/</span> <span class="st">"pyproject.toml"</span>).is_file() <span class="kw">and</span> (cand <span class="op">/</span> <span class="st">"src"</span> <span class="op">/</span> <span class="st">"pycausalml"</span>).is_dir():</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> cand</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">FileNotFoundError</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"PyCausalML repository was not found. Run this notebook from the repository."</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>root <span class="op">=</span> _repo_root()</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>subprocess.check_call([</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    sys.executable, <span class="st">"-m"</span>, <span class="st">"pip"</span>, <span class="st">"install"</span>, <span class="st">"-q"</span>, <span class="st">"-e"</span>, <span class="ss">f"</span><span class="sc">{</span>root<span class="sc">}</span><span class="ss">[plot,boost,shap]"</span>, <span class="st">"statsmodels"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PyCausalML ready."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>PyCausalML ready.</code></pre>
+</div>
+</div>
+<div id="913c5ae9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:37:56.345329Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:37:56.344868Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:37:59.820537Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:37:59.818773Z&quot;}}" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.formula.api <span class="im">as</span> smf</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.stats.anova <span class="im">import</span> anova_lm</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pycausalml <span class="im">import</span> BoostedIVForest</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">"figure.dpi"</span>] <span class="op">=</span> <span class="dv">110</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Imported PyCausalML"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Imported PyCausalML</code></pre>
+</div>
+</div>
+</section>
+<section id="data-returns-to-education-card-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="data-returns-to-education-card-dataset">Data: Returns to Education (Card Dataset)</h2>
+<p>We estimate the causal effect of <strong>education on wages</strong> using proximity to a four-year college as an instrument (Card, 1995).</p>
+<ul>
+<li><code>lwage</code> = log(wage) — outcome (Y)</li>
+<li><code>educ</code> = years of education — endogenous treatment (W)</li>
+<li><code>nearc4</code> = grew up near a four-year college — instrument (Z)</li>
+<li><code>exper</code> = potential work experience</li>
+<li><code>expersq</code> = experience squared</li>
+<li><code>black</code> = Black</li>
+<li><code>smsa</code> = lives in an SMSA</li>
+<li><code>south</code> = lives in the South</li>
+</ul>
+<section id="load-and-prepare-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-and-prepare-data">Load and Prepare Data</h3>
+<div id="df002766" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:37:59.825990Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:37:59.825678Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.121790Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.119741Z&quot;}}" data-execution_count="3">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tempfile</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> urllib.request</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>card_url <span class="op">=</span> <span class="st">"https://github.com/dmarcelinobr/Datasets/raw/refs/heads/master/CARD.DTA"</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> tempfile.NamedTemporaryFile(delete<span class="op">=</span><span class="va">False</span>, suffix<span class="op">=</span><span class="st">".dta"</span>) <span class="im">as</span> tmp:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    urllib.request.urlretrieve(card_url, tmp.name)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    card <span class="op">=</span> pd.read_stata(tmp.name)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>os.unlink(tmp.name)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>card[<span class="st">"exper"</span>] <span class="op">=</span> card[<span class="st">"exper"</span>].astype(<span class="bu">float</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>card[<span class="st">"expersq"</span>] <span class="op">=</span> card[<span class="st">"exper"</span>] <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>card <span class="op">=</span> card[[<span class="st">"lwage"</span>, <span class="st">"educ"</span>, <span class="st">"nearc4"</span>, <span class="st">"exper"</span>, <span class="st">"expersq"</span>, <span class="st">"black"</span>, <span class="st">"smsa"</span>, <span class="st">"south"</span>]].dropna()</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>feature_names <span class="op">=</span> [<span class="st">"exper"</span>, <span class="st">"expersq"</span>, <span class="st">"black"</span>, <span class="st">"smsa"</span>, <span class="st">"south"</span>]</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> card[feature_names].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> card[<span class="st">"lwage"</span>].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>W <span class="op">=</span> card[<span class="st">"educ"</span>].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>Z <span class="op">=</span> card[<span class="st">"nearc4"</span>].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(card.head())</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"N ="</span>, <span class="bu">len</span>(card))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      lwage  educ  nearc4  exper  expersq  black  smsa  south
+0  6.306275     7       0   16.0    256.0      1     1      0
+1  6.175867    12       0    9.0     81.0      0     1      0
+2  6.580639    12       0   16.0    256.0      0     1      0
+3  5.521461    11       1   10.0    100.0      0     1      0
+4  6.591674    12       1   16.0    256.0      0     1      0
+N = 3010</code></pre>
+</div>
+</div>
+</section>
+<section id="descriptive-statistics-and-first-stage-check" class="level3">
+<h3 class="anchored" data-anchor-id="descriptive-statistics-and-first-stage-check">Descriptive Statistics and First-Stage Check</h3>
+<div id="20b509f5" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.126245Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.125970Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.161906Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.160285Z&quot;}}" data-execution_count="4">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>first_stage <span class="op">=</span> smf.ols(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"educ ~ nearc4 + exper + expersq + black + smsa + south"</span>, data<span class="op">=</span>card</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>).fit()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(first_stage.summary().tables[<span class="dv">1</span>].as_text())</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>anova_res <span class="op">=</span> anova_lm(first_stage, typ<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"F-statistic for nearc4: </span><span class="sc">{</span>anova_res<span class="sc">.</span>loc[<span class="st">'nearc4'</span>, <span class="st">'F'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"First-stage overall F-statistic: </span><span class="sc">{</span>first_stage<span class="sc">.</span>fvalue<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>==============================================================================
+                 coef    std err          t      P&gt;|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+Intercept     16.6592      0.176     94.446      0.000      16.313      17.005
+nearc4         0.3373      0.083      4.089      0.000       0.176       0.499
+exper         -0.4100      0.034    -12.169      0.000      -0.476      -0.344
+expersq        0.0007      0.002      0.444      0.657      -0.003       0.004
+black         -1.0061      0.090    -11.224      0.000      -1.182      -0.830
+smsa           0.4039      0.085      4.758      0.000       0.237       0.570
+south         -0.2915      0.079     -3.679      0.000      -0.447      -0.136
+==============================================================================
+F-statistic for nearc4: 16.72
+First-stage overall F-statistic: 451.87</code></pre>
+</div>
+</div>
+<div id="52880da1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.166047Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.165881Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.323616Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.322065Z&quot;}}" data-execution_count="5">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sns.boxplot(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>card,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"nearc4"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">"educ"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    hue<span class="op">=</span><span class="st">"nearc4"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span>[<span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>],</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"First stage: college proximity and years of education"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Grew up near a four-year college (nearc4)"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Years of education (educ)"</span>)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>ax.set_xticks([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="st">"No"</span>, <span class="st">"Yes"</span>])</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="training-a-boosted-iv-forest" class="level3">
+<h3 class="anchored" data-anchor-id="training-a-boosted-iv-forest">Training a Boosted IV Forest</h3>
+<p><code>BoostedIVForest</code> cross-fits XGBoost nuisances for log wage, years of education, and college proximity, then forms the conditional return to schooling from the residual Wald ratio. Education is continuous, as in the usual Card specification.</p>
+<div id="6b8c67d4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.328618Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.328401Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.713315Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.712543Z&quot;}}" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> BoostedIVForest(n_estimators<span class="op">=</span><span class="dv">60</span>, n_splits<span class="op">=</span><span class="dv">2</span>, learner<span class="op">=</span><span class="st">"xgb"</span>, random_state<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model.fit(X, W, Y, Z, feature_names<span class="op">=</span>feature_names)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>tau_hat <span class="op">=</span> model.predict(X)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"BoostedIVForest"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  n = </span><span class="sc">{</span><span class="bu">len</span>(tau_hat)<span class="sc">}</span><span class="ss">, p = </span><span class="sc">{</span>X<span class="sc">.</span>shape[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  mean CATE = </span><span class="sc">{</span>tau_hat<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"  CATE sd = </span><span class="sc">{</span>tau_hat<span class="sc">.</span>std()<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>BoostedIVForest
+  n = 3010, p = 5
+  mean CATE = 0.090
+  CATE sd = 0.215</code></pre>
+</div>
+</div>
+</section>
+<section id="model-summary" class="level3">
+<h3 class="anchored" data-anchor-id="model-summary">Model Summary</h3>
+<div id="8ffd33cf" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.715030Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.714868Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.718318Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.717582Z&quot;}}" data-execution_count="7">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean estimated LATE: </span><span class="sc">{</span>tau_hat<span class="sc">.</span>mean()<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"LATE sd: </span><span class="sc">{</span>tau_hat<span class="sc">.</span>std()<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"LATE range: </span><span class="sc">{</span>tau_hat<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.3f}</span><span class="ss"> to </span><span class="sc">{</span>tau_hat<span class="sc">.</span><span class="bu">max</span>()<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean estimated LATE: 0.090
+LATE sd: 0.215
+LATE range: -1.101 to 2.164</code></pre>
+</div>
+</div>
+</section>
+<section id="predicting-treatment-effects" class="level3">
+<h3 class="anchored" data-anchor-id="predicting-treatment-effects">Predicting Treatment Effects</h3>
+<div id="d42efa9c" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.720206Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.720016Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.724193Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.723392Z&quot;}}" data-execution_count="8">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ate_hat <span class="op">=</span> <span class="bu">float</span>(tau_hat.mean())</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>se_hat <span class="op">=</span> <span class="bu">float</span>(tau_hat.std(ddof<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> np.sqrt(<span class="bu">len</span>(tau_hat)))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Average estimated return to education: </span><span class="sc">{</span>ate_hat<span class="sc">:.3f}</span><span class="ss"> (SE of the mean </span><span class="sc">{</span>se_hat<span class="sc">:.3f}</span><span class="ss">)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Average estimated return to education: 0.090 (SE of the mean 0.004)</code></pre>
+</div>
+</div>
+</section>
+<section id="visualizing-results" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-results">Visualizing Results</h3>
+<div id="f3ff479e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.725934Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.725795Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:00.882851Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:00.881473Z&quot;}}" data-execution_count="9">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">5</span>))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>ax.scatter(card[<span class="st">"exper"</span>], tau_hat, s<span class="op">=</span><span class="dv">12</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, c<span class="op">=</span><span class="st">"black"</span>, label<span class="op">=</span><span class="st">"Individual LATE"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>ax.axhline(ate_hat, color<span class="op">=</span><span class="st">"crimson"</span>, lw<span class="op">=</span><span class="dv">2</span>, ls<span class="op">=</span><span class="st">"--"</span>, label<span class="op">=</span><span class="st">"Average LATE"</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Potential experience (exper)"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Estimated return to education"</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Heterogeneous returns to schooling by experience"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper right"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cate-distribution-and-partial-dependence" class="level3">
+<h3 class="anchored" data-anchor-id="cate-distribution-and-partial-dependence">CATE Distribution and Partial Dependence</h3>
+<div id="a30088ba" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:00.888121Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:00.887664Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:01.038317Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:01.036895Z&quot;}}" data-execution_count="10">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>ax.scatter(card[<span class="st">"exper"</span>], tau_hat, s<span class="op">=</span><span class="dv">12</span>, alpha<span class="op">=</span><span class="fl">0.35</span>, c<span class="op">=</span><span class="st">"#4C72B0"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>order <span class="op">=</span> np.argsort(card[<span class="st">"exper"</span>].to_numpy())</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>window <span class="op">=</span> <span class="bu">max</span>(<span class="dv">20</span>, <span class="bu">len</span>(order) <span class="op">//</span> <span class="dv">30</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>kernel <span class="op">=</span> np.ones(window) <span class="op">/</span> window</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>smooth <span class="op">=</span> np.convolve(tau_hat[order], kernel, mode<span class="op">=</span><span class="st">"valid"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> card[<span class="st">"exper"</span>].to_numpy()[order][window <span class="op">//</span> <span class="dv">2</span>: window <span class="op">//</span> <span class="dv">2</span> <span class="op">+</span> <span class="bu">len</span>(smooth)]</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>ax.plot(xs, smooth, color<span class="op">=</span><span class="st">"#C44E52"</span>, lw<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Potential experience (exper)"</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Estimated LATE"</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Estimated return to education along experience"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="predicting-for-new-data" class="level3">
+<h3 class="anchored" data-anchor-id="predicting-for-new-data">Predicting for New Data</h3>
+<div id="256595eb" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:01.043281Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:01.043130Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:01.050394Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:01.049080Z&quot;}}" data-execution_count="11">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"exper"</span>: [<span class="dv">10</span>],</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"expersq"</span>: [<span class="dv">10</span> <span class="op">**</span> <span class="dv">2</span>],</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"black"</span>: [<span class="dv">0</span>],</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"smsa"</span>: [<span class="dv">1</span>],</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"south"</span>: [<span class="dv">0</span>],</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>new_pred <span class="op">=</span> model.predict(new_data[feature_names].to_numpy())</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Predicted return to education for this profile:"</span>,</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">round</span>(<span class="bu">float</span>(np.squeeze(new_pred)), <span class="dv">3</span>),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Predicted return to education for this profile: 0.01</code></pre>
+</div>
+</div>
+</section>
+<section id="subgroup-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="subgroup-analysis">Subgroup Analysis</h3>
+<div id="fc018e0f" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:01.055394Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:01.054987Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:01.067155Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:01.065429Z&quot;}}" data-execution_count="12">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name <span class="kw">in</span> feature_names:</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    col <span class="op">=</span> card[name].to_numpy(dtype<span class="op">=</span><span class="bu">float</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    levels <span class="op">=</span> np.unique(col)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(levels) <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        groups <span class="op">=</span> [(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss"> = </span><span class="sc">{</span>level<span class="sc">:g}</span><span class="ss">"</span>, col <span class="op">==</span> level) <span class="cf">for</span> level <span class="kw">in</span> levels]</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        cut <span class="op">=</span> <span class="bu">float</span>(np.median(col))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        groups <span class="op">=</span> [(<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss"> &lt;= </span><span class="sc">{</span>cut<span class="sc">:g}</span><span class="ss">"</span>, col <span class="op">&lt;=</span> cut), (<span class="ss">f"</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss"> &gt; </span><span class="sc">{</span>cut<span class="sc">:g}</span><span class="ss">"</span>, col <span class="op">&gt;</span> cut)]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> label, mask <span class="kw">in</span> groups:</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        rows.append({</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">"group"</span>: label,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"n"</span>: <span class="bu">int</span>(mask.<span class="bu">sum</span>()),</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">"mean_late"</span>: <span class="bu">float</span>(tau_hat[mask].mean()),</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.DataFrame(rows).<span class="bu">round</span>(<span class="dv">3</span>).to_string(index<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>        group    n  mean_late
+   exper &lt;= 8 1578      0.048
+    exper &gt; 8 1432      0.136
+expersq &lt;= 64 1578      0.048
+ expersq &gt; 64 1432      0.136
+    black = 0 2307      0.098
+    black = 1  703      0.062
+     smsa = 0  864      0.120
+     smsa = 1 2146      0.078
+    south = 0 1795      0.080
+    south = 1 1215      0.104</code></pre>
+</div>
+</div>
+</section>
+<section id="variable-importance" class="level3">
+<h3 class="anchored" data-anchor-id="variable-importance">Variable Importance</h3>
+<div id="99942002" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:01.072180Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:01.071862Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:01.182228Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:01.181083Z&quot;}}" data-execution_count="13">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>vi <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"feature"</span>: feature_names,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"importance"</span>: model.feature_importance(),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>}).sort_values(<span class="st">"importance"</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(vi.<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">3.5</span>))</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>ax.barh(vi[<span class="st">"feature"</span>], vi[<span class="st">"importance"</span>], color<span class="op">=</span><span class="st">"steelblue"</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Variable importance"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>fig.tight_layout()</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   feature  importance
+1  expersq       0.000
+4    south       0.110
+0    exper       0.222
+3     smsa       0.234
+2    black       0.434</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-14-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="estimated-late-and-experience" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-late-and-experience">Estimated LATE and experience</h3>
+<p>Both potential outcomes are not observed, so this is a description of the fitted surface: a linear regression of the estimated return to education on potential experience.</p>
+<div id="30dccdee" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:01.187348Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:01.187185Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:01.194158Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:01.192642Z&quot;}}" data-execution_count="14">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>design <span class="op">=</span> np.column_stack([np.ones(<span class="bu">len</span>(tau_hat)), card[<span class="st">"exper"</span>].to_numpy()])</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>beta, _, _, _ <span class="op">=</span> np.linalg.lstsq(design, tau_hat, rcond<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.DataFrame({</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"term"</span>: [<span class="st">"intercept"</span>, <span class="st">"exper"</span>],</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"estimate"</span>: beta,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>}).<span class="bu">round</span>(<span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>        term  estimate
+0  intercept   -0.0295
+1      exper    0.0135</code></pre>
+</div>
+</div>
+</section>
+<section id="shap-values-for-the-conditional-late" class="level3">
+<h3 class="anchored" data-anchor-id="shap-values-for-the-conditional-late">SHAP values for the conditional LATE</h3>
+<div id="4ac4c27a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-30T05:38:01.198709Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-30T05:38:01.198490Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-30T05:38:01.815501Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-30T05:38:01.813895Z&quot;}}" data-execution_count="15">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> model.explain(X, max_samples<span class="op">=</span><span class="dv">40</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"SHAP array shape:"</span>, sv.values.shape)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>sv.plot_importance()</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> feature <span class="kw">in</span> [<span class="st">"exper"</span>, <span class="st">"black"</span>, <span class="st">"south"</span>, <span class="st">"smsa"</span>]:</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    sv.plot_dependence(feature)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SHAP array shape: (40, 5)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-16-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-16-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-16-output-4.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-16-output-5.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="02_08_05_01_07_instrumental_causal_xgboost_files/figure-html/cell-16-output-6.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> - Check first-stage F-statistic &gt; 10 (strong instrument). - Verify instrument validity (relevance and exclusion restriction) in your application. - Increase <code>n_splits</code> and <code>n_estimators</code> for a more stable fit.</p>
+</blockquote>
+</section>
+</section>
+<section id="summary-and-conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="summary-and-conclusion">Summary and Conclusion</h2>
+<p><strong>Boosted IV Forest</strong> estimates a heterogeneous local average treatment effect when treatment is endogenous. Cross-fitted XGBoost models residualize the outcome, treatment, and instrument, and a second pair of boosters forms the conditional LATE as a residual Wald ratio. This tutorial used the Card (1995) dataset, with years of education as the treatment and proximity to a four-year college as the instrument, and walked through <code>BoostedIVForest</code>: the first stage, fitted LATEs, a new-profile prediction, subgroup summaries, variable importance, and SHAP explanations. The same workflow applies to other settings with a valid instrument and covariates.</p>
+</section>
+<section id="resources" class="level2">
+<h2 class="anchored" data-anchor-id="resources">Resources</h2>
+<ol type="1">
+<li>Athey, Susan, Julie Tibshirani, and Stefan Wager. “Generalized Random Forests.” <em>Annals of Statistics</em>, 47(2), 2019.</li>
+<li>Card, David (1995). “Using Geographic Variation in College Proximity to Estimate the Return to Schooling.” In <em>Aspects of Labour Market Behaviour: Essays in Honour of John Vanderkamp</em>.</li>
+<li>Wang, Guihua, et al.&nbsp;“An Instrumental Variable Forest Approach for Detecting Heterogeneous Treatment Effects in Observational Studies.” <em>Management Science</em>, 2021.</li>
+<li><code>BoostedIVForest</code> in PyCausalML.</li>
+</ol>
+
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/zia207\.github\.io\/PyCausalML\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.html" class="pagination-link" aria-label="Causal XGBoost">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Causal XGBoost</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.html" class="pagination-link" aria-label="Boosted Multi-Arm Causal Model">
+        <span class="nav-page-text">Boosted Multi-Arm Causal Model</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© CC-By Zia Ahmed, Upatta Analytics, 2026</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.dev/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.ipynb" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/zia207/PyCausalML/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/zia207/PyCausalML/blob/main/Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.ipynb" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p>This page is built with <a href="https://quarto.org/">Quarto</a>.</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

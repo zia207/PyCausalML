@@ -1,0 +1,288 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - Tutorials/00-scientific-terminology-glossary.qmd
+    - Tutorials/02_08_05_00_casual_ml_introduction.ipynb
+    - Tutorials/05_01_Tree_Based_Models/*.ipynb
+    - Tutorials/05_02_Meta_Learners/*.ipynb
+    - Tutorials/05_03_Uplift_Learners/*.ipynb
+    - Tutorials/05_04_DoubleML/*.ipynb
+    - Tutorials/05_05_DeepCausalML/*.ipynb
+    - Tutorials/05_06_Bayesian_CausalML/*.ipynb
+    - Tutorials/05_07_Policy_Learners/*.ipynb
+    - Tutorials/05_08_Quasi_Experiements/*.ipynb
+
+website:
+  title: "PyCausalML"
+  description: "Classical and deep causal inference in one Python package"
+  site-url: https://zia207.github.io/PyCausalML/
+  repo-url: https://github.com/zia207/PyCausalML
+  repo-branch: main
+  repo-actions: [edit, issue, source]
+  page-navigation: true
+  back-to-top-navigation: true
+  search:
+    location: sidebar
+    type: textbox
+  page-footer:
+    right: "This page is built with [Quarto](https://quarto.org/)."
+    left: "&copy; CC-By Zia Ahmed, Upatta Analytics, 2026"
+  navbar:
+    background: primary
+    logo: logo_PyCausalML.png
+    logo-alt: "PyCausalML"
+    logo-href: index.qmd
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Tutorial
+        href: Tutorials/02_08_05_00_casual_ml_introduction.ipynb
+      - text: Glossary
+        href: Tutorials/00-scientific-terminology-glossary.qmd
+      - icon: house
+        href: https://sites.google.com/view/r-data-sci-env/home
+        aria-label: Upatta Analytics
+    right:
+      - icon: github
+        href: https://github.com/zia207/PyCausalML
+        aria-label: GitHub
+      - icon: linkedin
+        href: https://www.linkedin.com/in/zia-ahmed207
+        aria-label: LinkedIn
+      - icon: envelope
+        href: mailto:zia207@gmail.com
+        aria-label: Email
+
+  sidebar:
+    logo: logo_PyCausalML.png
+    logo-alt: "PyCausalML"
+    logo-href: index.qmd
+    pinned: true
+    border: true
+    align: center
+    search: true
+    style: "docked"
+    collapse-level: 1
+    contents:
+      - text: "Package Overview"
+        href: index.qmd
+      - section: "**Causal Machine Learning**"
+        contents:
+          - href: Tutorials/02_08_05_00_casual_ml_introduction.ipynb
+            text: "Introduction to Causal Machine Learning"
+      - section: "**Tree-Based Models**"
+        contents:
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.ipynb
+            text: "Introduction to Tree-Based Models"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_01_causal_tree.ipynb
+            text: "Causal Tree"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_02_causal_forest.ipynb
+            text: "Causal Forest"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_03_causal_survival_forest.ipynb
+            text: "Causal Survival Forest"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_04_instrumental_causal_forest.ipynb
+            text: "Instrumental Forest"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_05_multi_arm_causal_forest.ipynb
+            text: "Multi-Arm Causal Forest"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_06_causal_xgboost.ipynb
+            text: "Causal XGBoost"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_07_instrumental_causal_xgboost.ipynb
+            text: "Boosted IV Forest"
+          - href: Tutorials/05_01_Tree_Based_Models/02_08_05_01_08_multi_arm_causal_boost.ipynb
+            text: "Boosted Multi-Arm Causal Model"
+      - section: "**Meta-Learners**"
+        contents:
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_00_meta_learners_introduction.ipynb
+            text: "Introduction to Meta-Learners"
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_01_meta_learners_binary_treatments.ipynb
+            text: "Binary Treatments"
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_02_meta_learners_multiple_discrete_treatment.ipynb
+            text: "Multiple Discrete Treatments"
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_03_meta_learners_continuous_treatment.ipynb
+            text: "Continuous Treatments"
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_04_tmle_model.ipynb
+            text: "Targeted Maximum Likelihood Estimation"
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_05_meta_learners_domain_adaptation_learner.ipynb
+            text: "Domain Adaptation Learner"
+          - href: Tutorials/05_02_Meta_Learners/02_08_05_02_06_meta_learners_doubly_robust_learners.ipynb
+            text: "Doubly Robust Learners"
+      - section: "**Uplift Learners**"
+        contents:
+          - href: Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.ipynb
+            text: "Introduction to Uplift Learners"
+          - href: Tutorials/05_03_Uplift_Learners/02_08_05_03_01_uplift_trees_classification.ipynb
+            text: "Uplift Tree: Classification"
+          - href: Tutorials/05_03_Uplift_Learners/02_08_05_03_02_uplift_trees_regression.ipynb
+            text: "Uplift Tree: Regression"
+          - href: Tutorials/05_03_Uplift_Learners/02_08_05_03_03_uplift_randomForest.ipynb
+            text: "Uplift Random Forest"
+          - href: Tutorials/05_03_Uplift_Learners/02_08_05_03_04_uplift_xgboost.ipynb
+            text: "Uplift XGBoost"
+      - section: "**Double Machine Learning**"
+        contents:
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_00_double_ml_introduction.ipynb
+            text: "Introduction to Double ML"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_01_double_ml_from_basics_to_application.ipynb
+            text: "Bias and Orthogonalization"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_02_double_ml_single_multiple_treatment.ipynb
+            text: "Single and Multiple Treatments"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_03_double_ml_did.ipynb
+            text: "Difference-in-Differences"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_04_double_ml_iv.ipynb
+            text: "Instrumental Variables"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_05_double_ml_dynamic_ml.ipynb
+            text: "Dynamic Double ML"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_06_double_ml_weighted_double_ml.ipynb
+            text: "Weighted Double ML"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_07_double_ml_cluster_robust.ipynb
+            text: "Cluster-Robust Double ML"
+          - href: Tutorials/05_04_DoubleML/02_08_05_04_08_double_ml_ensemble_learners.ipynb
+            text: "Ensemble Learners"
+      - section: "**Deep Causal Learning**"
+        contents:
+          - href: Tutorials/05_05_DeepCausalML/02_08_05_05_00_DeepCausalML_introduction.ipynb
+            text: "Introduction to Deep Causal Learning"
+          - section: "**Treatment Effect Estimators**"
+            contents:
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_01_00_DeepCausalML_treatment_effect_estimators_introduction.ipynb
+                text: "Introduction to Treatment Effect Estimators"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_01_01_DeepCausalML_TARNET.ipynb
+                text: "TARNet: Treatment-Agnostic Representation Network"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_01_02_DeepCausalML_CFRNet.ipynb
+                text: "CFRNet: Counterfactual Regression Network"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_01_03_DeepCausalML_DragonNet.ipynb
+                text: "DragonNet: Propensity-Adjusted Networks"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_01_04_DeepCausalML_GANITE.ipynb
+                text: "GANITE: Generative Adversarial Treatment Effects"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_01_05_DeepCausalML_NeuralDML.ipynb
+                text: "NeuralDML: Neural Double Machine Learning"
+          - section: "**Generative Latent-Variable Causal Models**"
+            contents:
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_00_DeepCausalML_GLVCM_introduction.ipynb
+                text: "Introduction to GLVCMs"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_01_DeepCausalML_CausalVAE.ipynb
+                text: "CausalVAE: Causal Variational Autoencoder"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_02_DeepCausalML_iVAE.ipynb
+                text: "iVAE: Identifiable Variational Autoencoders"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_03_DeepCausalML_CausalDiscrepancyVAE.ipynb
+                text: "CausalDiscrepancyVAE"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_04_DeepCausalML_CausalGAN.ipynb
+                text: "CausalGAN: Causal Generative Network"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_05_DeepCausalML_DSCM.ipynb
+                text: "Deep Structural Causal Models (DSCMs)"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_02_06_DeepCausalML_CausalEGM.ipynb
+                text: "CausalEGM: Causal Encoding Generative Modeling"
+          - section: "**Causal Structural Learning**"
+            contents:
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_03_00_DeepCausalML_structural_learning_introduction.ipynb
+                text: "Introduction to Causal Structural Learning"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_03_01_DeepCausalML_NOTEARS.ipynb
+                text: "NOTEARS: Continuous Optimization Models"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_03_02_DeepCausalML_DagGNN.ipynb
+                text: "DAG-GNN"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_03_03_DeepCausalML_GranDag.ipynb
+                text: "GraN-DAG"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_03_04_DeepCausalML_DAGMA_NoCurl.ipynb
+                text: "DAGMA and DAG-NoCurl"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_03_05_DeepCausalML_CASTLE.ipynb
+                text: "CASTLE: Causal Structure Learning Regularization"
+          - section: "**Temporal Deep Causal ML**"
+            contents:
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_00_DeepCausalML_timeseries_introduction.ipynb
+                text: "Introduction to Temporal Deep Causal ML"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_01_DeepCausalML_timeseries_neural_granger_causality.ipynb
+                text: "Neural Granger Causality"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_02_DeepCausalML_timeseries_structural_causal_model_SMC.ipynb
+                text: "Structural Causal Models with Deep Components"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_03_DeepCausalML_attention_transformer.ipynb
+                text: "Attention and Transformer Causal Models"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_04_DeepCausalML_timeseries_RNN_LSTM_causalML.ipynb
+                text: "RNN and LSTM Causal Models"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_05_DeepCausalML_timeseries_graphNN.ipynb
+                text: "Graph Neural Network Causal Models"
+              - href: Tutorials/05_05_DeepCausalML/02_08_05_05_04_06_DeepCausalML_timeseries_counterfactual_potential.ipynb
+                text: "Counterfactual and Potential Outcomes Models"
+      - section: "**Bayesian Causal ML**"
+        contents:
+          - href: Tutorials/05_06_Bayesian_CausalML/02_08_05_06_00_bayesian_causal_introduction.ipynb
+            text: "Introduction to Bayesian Causal ML"
+          - href: Tutorials/05_06_Bayesian_CausalML/02_08_05_06_01_bayesian_causal_inference.ipynb
+            text: "Bayesian Causal Inference"
+          - href: Tutorials/05_06_Bayesian_CausalML/02_08_05_06_02_graphs_and_bayesian_networks.ipynb
+            text: "Graphs and Bayesian Networks"
+          - href: Tutorials/05_06_Bayesian_CausalML/02_08_05_06_03_bayesian_structural_models.ipynb
+            text: "Bayesian Structural Causal Models"
+          - href: Tutorials/05_06_Bayesian_CausalML/02_08_05_06_04_bayesian_quasi_experiments.ipynb
+            text: "Bayesian Quasi-Experiments"
+      - section: "**Policy Learners**"
+        contents:
+          - href: Tutorials/05_07_Policy_Learners/02_08_05_07_00_policy_learners_introduction.ipynb
+            text: "Introduction to Policy Learners"
+          - href: Tutorials/05_07_Policy_Learners/02_08_05_07_01_doubleml_policy_tree.ipynb
+            text: "Policy Tree"
+          - href: Tutorials/05_07_Policy_Learners/02_08_05_07_02_econml_dr_policy_tree.ipynb
+            text: "Doubly Robust Policy Tree"
+          - href: Tutorials/05_07_Policy_Learners/02_08_05_07_03_econml_policy_forest.ipynb
+            text: "Policy Forest"
+      - section: "**Quasi-Experiments**"
+        contents:
+          - href: Tutorials/05_08_Quasi_Experiements/02_08_05_08_00_quasi_experiments_introduction.ipynb
+            text: "Introduction to Quasi-Experiments"
+          - href: Tutorials/05_08_Quasi_Experiements/02_08_05_08_01_difference_in_differences.ipynb
+            text: "Difference-in-Differences"
+          - href: Tutorials/05_08_Quasi_Experiements/02_08_05_08_02_synthetic_control.ipynb
+            text: "Synthetic Control"
+          - href: Tutorials/05_08_Quasi_Experiements/02_08_05_08_03_regression_discontinuity.ipynb
+            text: "Regression Discontinuity"
+          - href: Tutorials/05_08_Quasi_Experiements/02_08_05_08_04_instrumental_variables.ipynb
+            text: "Instrumental Variables"
+          - href: Tutorials/05_08_Quasi_Experiements/02_08_05_08_05_bayesian_causal_inference_quasi_experimental.ipynb
+            text: "Bayesian Quasi-Experimental Inference"
+      - section: "**Terminology**"
+        contents:
+          - href: Tutorials/00-scientific-terminology-glossary.qmd
+            text: "A–Z glossary of causal inference and machine learning"
+
+tbl-cap-location: top
+title-block-banner: true
+
+execute:
+  enabled: false
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    highlight-style: github
+    fontsize: 1.1em
+    linestretch: 1.6
+    code-fold: show
+    code-tools: false
+    code-copy: true
+    code-link: true
+    smooth-scroll: true
+    toc: true
+    toc-depth: 4
+    toc-title: "On This Page"
+    number-sections: false
+    fig-align: center
+    df-print: paged
+    favicon: logo_PyCausalML.png
+    grid:
+      sidebar-width: 350px
+      body-width: 1200px
+      margin-width: 250px
+      gutter-width: 1.5rem
+    include-in-header:
+      text: |
+        <style>
+        .navbar-logo img { max-height: 42px; width: auto; }
+        #quarto-sidebar .sidebar-logo img { max-width: 168px; height: auto; }
+        </style>

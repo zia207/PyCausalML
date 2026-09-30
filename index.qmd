@@ -1,0 +1,282 @@
+---
+title: "PyCausalML"
+subtitle: "Classical and deep causal inference in Python"
+page-layout: full
+toc: false
+image: logo_PyCausalML.png
+---
+
+::: {.pkg-hero}
+
+<p class="pkg-logo-wrap">
+<img src="logo_PyCausalML.png" alt="PyCausalML" width="180">
+</p>
+
+# pycausalml {.pkg-name}
+
+<p class="pkg-meta"><strong>Version:</strong> 0.2.0 · <strong>Requires:</strong> Python ≥ 3.9 · <strong>License:</strong> <a href="https://github.com/zia207/PyCausalML/blob/main/LICENSE">MIT</a></p>
+
+Classical and deep causal inference in one installable package. Trees, uplift, meta-learners, double machine learning, treatment policies, Bayesian quasi-experiments, and the neural models from [PyDeepCausalML](https://github.com/zia207/PyDeepCausalML) share one import.
+
+```{.bash copy="true"}
+pip install https://github.com/zia207/PyCausalML/releases/download/v0.2.0/pycausalml-0.2.0-py3-none-any.whl
+```
+
+| | |
+|---|---|
+| **Package** | [Release v0.2.0](https://github.com/zia207/PyCausalML/releases/tag/v0.2.0) · [GitHub](https://github.com/zia207/PyCausalML) · [Homepage](https://zia207.github.io/PyCausalML/) |
+| **Docs** | [Tutorial](Tutorials/02_08_05_00_casual_ml_introduction.ipynb) · [Glossary](Tutorials/00-scientific-terminology-glossary.qmd) |
+| **Author** | Zia U. Ahmed · Upatta Analytics |
+
+:::
+
+::: {.grid}
+
+::: {.g-col-8}
+
+## What is it? {#what-is-it}
+
+**PyCausalML** 0.2.0 extends [PyDeepCausalML 0.2.0](https://github.com/zia207/PyDeepCausalML/releases/tag/v0.2.0) and keeps every public estimator from that release (`TARNet`, `DragonNet`, `NOTEARS`, `TCDF`, and the rest). On top of those neural models it adds tree and forest estimators, uplift learners, meta-learners, double machine learning, treatment policies, and Bayesian quasi-experiments.
+
+`import pycausalml` and `import pydeepcausalml` both work after installation. The deep-learning release on its own is still [PyDeepCausalML v0.2.0](https://github.com/zia207/PyDeepCausalML/releases/tag/v0.2.0).
+
+Use it when you need to:
+
+- Estimate **conditional average treatment effects** with honest trees, forests, meta-learners, or neural nets
+- Score **uplift** on a binary outcome and choose **who should be treated**
+- Estimate a constant effect with a **confidence interval** (double machine learning, neural DML)
+- Run **quasi-experiments**: difference-in-differences, synthetic control, regression discontinuity, instrumental variables
+- Put **Bayesian uncertainty** on a causal network, a structural model, or a quasi-experiment
+- Discover **causal graphs** from static or time-series data
+- Train neural models on **CPU, CUDA, or Apple MPS** with the same scikit-learn style API
+
+## Installation {#installation}
+
+Requires Python ≥ 3.9. PyTorch ≥ 2.0 is included because the deep models are part of this distribution.
+
+Install release [v0.2.0](https://github.com/zia207/PyCausalML/releases/tag/v0.2.0):
+
+```bash
+pip install https://github.com/zia207/PyCausalML/releases/download/v0.2.0/pycausalml-0.2.0-py3-none-any.whl
+```
+
+From source:
+
+```bash
+git clone https://github.com/zia207/PyCausalML.git
+cd PyCausalML
+pip install -e ".[dev]"
+pytest
+```
+
+Plotting (`matplotlib` / `seaborn`) and the optional libraries:
+
+```bash
+pip install -e ".[plot]"
+pip install -e ".[dowhy,econml,causallearn,uber,doubleml,causalpy,skgrf,shap,boost]"
+```
+
+## Main features {#main-features}
+
+| Module | What it estimates |
+|---|---|
+| `pycausalml.tree_based_models` | Honest trees, doubly robust forests, survival and instrumental forests, boosted causal models |
+| `pycausalml.uplift_learners` | Uplift trees and forests, interaction trees, uplift XGBoost, Qini curves |
+| `pycausalml.meta_learners` | S, T, X, R, and DR learners, plus domain adaptation |
+| `pycausalml.double_machine_learning` | Partially linear, linear, sparse, nonparametric, kernel, and interactive DML |
+| `pycausalml.policy_learners` | Doubly robust policy learner, policy tree, and policy forest |
+| `pycausalml.bayesian_causalML` | Bayesian DiD, RDD, ITS, IV, synthetic control, causal networks, structural models |
+| `pydeepcausalml` | TARNet, CFRNet, DragonNet, GANITE, CausalVAE, NOTEARS, TCDF, and the rest of the neural catalog |
+
+Optional backends in `pycausalml.integrations` wrap DoWhy, EconML, causal-learn, Uber CausalML, DoubleML, CausalPy, and `skgrf` when those libraries are installed.
+
+## Quickstart {#quickstart}
+
+Classical estimators share `fit(X, treatment, y)` and return NumPy arrays of conditional average treatment effects.
+
+```python
+from pycausalml import DRLearner, PartiallyLinearDML, synthetic_data
+from pycausalml.data import make_linear_treatment
+
+data = synthetic_data(n=1000, p=6, sigma=0.8, mode=2, random_state=0)
+dr = DRLearner(learner="gbr", n_estimators=40, random_state=0).fit(
+    data["X"], data["w"], data["y"]
+)
+print("CATE:", dr.predict(data["X"][:5]))
+print("ATE:", dr.average_treatment_effect())
+
+linear = make_linear_treatment(n=800, tau=2.0, random_state=0)
+dml = PartiallyLinearDML(model_y="ridge", random_state=0).fit(
+    linear["X"], linear["w"], linear["y"]
+)
+print("DML effect:", dml.effect(), "95% CI:", dml.confidence_interval())
+```
+
+Neural estimators use the same top-level import:
+
+```python
+from pycausalml import DragonNet
+from pydeepcausalml.datasets import make_confounded_data
+
+df = make_confounded_data(n=2000, random_state=0)
+X = df[["age", "education", "prior_income"]].values
+est = DragonNet(epochs=50, random_state=0).fit(
+    X, df["treatment"].values, df["outcome"].values
+)
+print("ATE:", est.predict_ate(X))
+```
+
+## Choosing an estimator {#choosing-an-estimator}
+
+| Question | Reach for |
+|---|---|
+| Honest tree or forest CATE, with a doubly robust score | `CausalTree`, `CausalForest`, `DRLearner` |
+| Uplift on a binary outcome | `UpliftRandomForest`, `UpliftXGBoost` |
+| Constant effect with a confidence interval | `PartiallyLinearDML`, `NeuralDML` |
+| Who should be treated? | `PolicyLearner`, `DRPolicyTree` |
+| Threshold, before/after, or a single treated unit | `RegressionDiscontinuity`, `DifferenceInDifferences`, `SyntheticControl` |
+| Bayesian uncertainty for a network or a quasi-experiment | `bayesian_causalML` |
+| Neural effect on i.i.d. data | `TARNet`, `CFRNet`, `DragonNet` |
+| Which variables cause which? | `NOTEARSLinear`, `DAGGNN`, `TCDF` |
+
+## Documentation {#documentation}
+
+The sidebar is the tutorial series for this package: tree-based models, meta-learners, uplift, double machine learning, deep causal learning, Bayesian causal ML, policy learners, and quasi-experiments.
+
+Start here:
+
+- [Introduction to Causal Machine Learning](Tutorials/02_08_05_00_casual_ml_introduction.ipynb)
+- [Tree-Based Models](Tutorials/05_01_Tree_Based_Models/02_08_05_01_00_casual_tree_introduction.ipynb)
+- [Meta-Learners](Tutorials/05_02_Meta_Learners/02_08_05_02_00_meta_learners_introduction.ipynb)
+- [Uplift Learners](Tutorials/05_03_Uplift_Learners/02_08_05_03_00_uplift_trees_introduction.ipynb)
+- [Double Machine Learning](Tutorials/05_04_DoubleML/02_08_05_04_00_double_ml_introduction.ipynb)
+- [Deep Causal Learning](Tutorials/05_05_DeepCausalML/02_08_05_05_00_DeepCausalML_introduction.ipynb)
+- [Bayesian Causal ML](Tutorials/05_06_Bayesian_CausalML/02_08_05_06_00_bayesian_causal_introduction.ipynb)
+- [Policy Learners](Tutorials/05_07_Policy_Learners/02_08_05_07_00_policy_learners_introduction.ipynb)
+- [Quasi-Experiments](Tutorials/05_08_Quasi_Experiements/02_08_05_08_00_quasi_experiments_introduction.ipynb)
+- [Scientific Terminology Glossary](Tutorials/00-scientific-terminology-glossary.qmd)
+
+Source, issues, and the full README live on [GitHub](https://github.com/zia207/PyCausalML).
+
+## License {#license}
+
+MIT — see [LICENSE](https://github.com/zia207/PyCausalML/blob/main/LICENSE).
+
+:::
+
+::: {.g-col-4 .pkg-sidebar}
+
+### Navigation
+
+- [Project description](#what-is-it)
+- [Installation](#installation)
+- [Main features](#main-features)
+- [Quickstart](#quickstart)
+- [Choosing an estimator](#choosing-an-estimator)
+- [Documentation](#documentation)
+- [License](#license)
+
+### Project links
+
+- [Homepage](https://zia207.github.io/PyCausalML/)
+- [Repository](https://github.com/zia207/PyCausalML)
+- [Release v0.2.0](https://github.com/zia207/PyCausalML/releases/tag/v0.2.0)
+- [Issues](https://github.com/zia207/PyCausalML/issues)
+- [PyDeepCausalML](https://github.com/zia207/PyDeepCausalML)
+
+### Verified details
+
+| | |
+|---|---|
+| **License** | MIT |
+| **Author** | Zia U. Ahmed |
+| **Requires** | Python ≥ 3.9 |
+| **Framework** | PyTorch ≥ 2.0, scikit-learn ≥ 1.2 |
+
+### Optional extras
+
+`plot`, `boost`, `shap`, `dowhy`, `econml`, `causallearn`, `uber`, `doubleml`, `causalpy`, `skgrf`, `dev`
+
+### Classifiers
+
+- Development Status :: Beta
+- Intended Audience :: Science/Research
+- Topic :: Scientific/Engineering :: Artificial Intelligence
+
+:::
+
+:::
+
+<style>
+.pkg-hero {
+  background: #f8f9fa;
+  color: #212529;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 1.5rem 2rem 1.75rem;
+  margin-bottom: 2rem;
+}
+.pkg-hero a {
+  color: #0d6efd;
+}
+.pkg-logo-wrap {
+  text-align: center;
+  margin: 0 0 0.75rem;
+}
+.pkg-logo-wrap img {
+  max-width: 180px;
+  height: auto;
+}
+.pkg-hero h1.pkg-name {
+  margin-top: 0;
+  margin-bottom: 0.35rem;
+  font-size: 2rem;
+  color: #212529;
+  text-align: center;
+}
+.pkg-hero .pkg-meta {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.pkg-hero .sourceCode,
+.pkg-hero pre,
+.pkg-hero pre code,
+.pkg-hero table {
+  text-align: left;
+}
+.pkg-hero p,
+.pkg-hero table {
+  color: #212529;
+}
+.pkg-hero table td,
+.pkg-hero table th {
+  background: transparent !important;
+  border-color: #dee2e6 !important;
+  color: #212529 !important;
+}
+.pkg-hero pre {
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.pkg-sidebar {
+  background: var(--bs-tertiary-bg, #f8f9fa);
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+}
+.pkg-sidebar h3 {
+  font-size: 1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--bs-secondary-color, #495057);
+}
+.pkg-sidebar h3:first-child {
+  margin-top: 0;
+}
+</style>
